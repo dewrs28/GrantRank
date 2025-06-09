@@ -20,7 +20,7 @@ public class UpdateCheckerManager {
     public UpdateCheckerResult check(){
         try {
             HttpURLConnection con = (HttpURLConnection) new URL(
-                    "https://api.spigotmc.org/legacy/update.php?resource=????").openConnection();
+                    "https://api.spigotmc.org/legacy/update.php?resource=125879").openConnection();
             int timed_out = 1250;
             con.setConnectTimeout(timed_out);
             con.setReadTimeout(timed_out);
@@ -44,7 +44,7 @@ public class UpdateCheckerManager {
                 LogSender.sendLogMessage("&cGrantRank is outdated!");
                 LogSender.sendLogMessage("&cNewest version: &e"+latestVersion);
                 LogSender.sendLogMessage("&cYour version: &e"+version);
-                LogSender.sendLogMessage("&cPlease Update Here: &ehttps://spigotmc.org/resources/????");
+                LogSender.sendLogMessage("&cPlease Update Here: &ehttps://spigotmc.org/resources/125879");
                 LogSender.sendLogMessage("*********************************************************************");
             }
         } else {
