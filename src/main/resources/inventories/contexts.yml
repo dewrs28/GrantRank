@@ -1,0 +1,27 @@
+title: "&8Select the contexts for the node"
+#Select how many rows this inventory will have. The available numbers are: 1, 2, 3, 4, 5, 6.
+rows: 3
+#Available item actions in this inventory:
+#SET_CONTEXT, FINISH_GRANT
+items:
+  actual-contexts:
+    slot: 11
+    material: PAPER
+    name: "&eActual Contexts"
+    lore:
+      - ""
+      - "%contexts%"
+  add-context:
+    slot: 15
+    material: BOOK
+    name: "&eAdd a context"
+    lore:
+      - ""
+    action: SET_CONTEXT
+  finish-grant:
+    slot: 26
+    material: EMERALD_BLOCK
+    name: "&aFinish the grant"
+    lore:
+      - ""
+    action: FINISH_GRANT

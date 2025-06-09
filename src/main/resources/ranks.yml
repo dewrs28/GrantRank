@@ -1,0 +1,14 @@
+#Here you can specify which ranks to display in the grants menu, in case your inventory type is set to CUSTOM.
+#Below is an example of a rank. If you want to use it as a template, you can uncomment it and comment out "ranks: []"
+#ranks:
+#  page_1: #The current page. You must follow the correct format "page_#"
+#    owner: #The name of the rank. It must be EXACTLY the same as the one created in LuckPerms
+#      slot: 11
+#      material: BOOK
+#      name: "%prefix%"
+#      lore:
+#        - " "
+#        - "&fGive the &7%name% &frank"
+#        - " "
+#        - "&7(Click for give)"
+ranks: []

@@ -1,0 +1,14 @@
+main: me.dewrs.GrantRank
+name: GrantRank
+author: dewrs
+version: 1.0
+api-version: 1.13
+depend: [LuckPerms]
+
+commands:
+  grant:
+    aliases: [grants]
+    description: Grant a rank to a player
+  grantadmin:
+    aliases: [gadmin, grantsadmin]
+    description: Command for admins

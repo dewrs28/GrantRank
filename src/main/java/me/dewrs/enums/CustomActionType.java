@@ -1,0 +1,5 @@
+package me.dewrs.enums;
+
+public enum CustomActionType {
+    GRANT, BACK, NEXT, DECORATION, OPEN_INVENTORY, GRANT_GIVE, SET_TIME, SET_CONTEXT, NODE_LOG, ADD_PERMISSION, FINISH_GRANT;
+}

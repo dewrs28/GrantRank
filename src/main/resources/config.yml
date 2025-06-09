@@ -1,0 +1,66 @@
+settings:
+  #Select all the information about where the data will be stored.
+  storage:
+    #Choose which type of storage you want to use.
+    #Possible options: MYSQL, SQLITE.
+    #Default: SQLITE
+    type: SQLITE
+    #The options "host, port, database, user and password" should only be set if your storage type is "MYSQL".
+    host: localhost
+    port: 3306
+    database: grantrank
+    user: admin
+    password: ""
+  #Choose how you want to organize the ranks in your /grants menu.
+  #IMPORTANT: For all types, the configuration is defined in the path "/inventories/grants.yml".
+  #Possible options:
+  #LUCKPERMS: Organizes the menu according to your ranks created in LuckPerms, based on their weight.
+  #CUSTOM: Organizes the inventory as you wish, modifying it from the "ranks.yml" file.
+  #Default: LUCKPERMS
+  grants_menu_type: LUCKPERMS
+  #If your "grant_menu_type" is set to LUCKPERMS, you can decide which groups will not appear in the grants menu.
+  #If you don't want to exclude any group, remove the "#" from the following commented line and comment the one that is not.
+  #excluse_luckperms_groups: []
+  exclude_luckperms_groups:
+    - rankup1
+    - rankup2
+  #Here you can customize the sounds that will be played at specific moments.
+  sounds:
+    open_inventory: #This is the sound event. DO NOT CHANGE
+      #Specify here whether the sound should be played or not.
+      enabled: true
+      #Here set the name of the sound considering your server version.
+      #Sounds for older server versions: https://helpch.at/docs/1.8.8/index.html?org/bukkit/Sound.html
+      #Sounds for newer server versions: https://hub.spigotmc.org/javadocs/spigot/org/bukkit/Sound.html
+      sound: BLOCK_NOTE_BLOCK_FLUTE
+    no_permission:
+      enabled: true
+      sound: BLOCK_ANVIL_USE
+    finish_grant:
+      enabled: true
+      sound: BLOCK_NOTE_BLOCK_PLING
+  #This item will be shown when listing your ranks in the /grants menu.
+  #This item will ONLY be shown if 'grants_menu_type' is 'LUCKPERMS'. If you are using a different type, refer above for information about its organization.
+  item_lp_grants_menu:
+    material: BOOK
+    name: "%prefix%"
+    lore:
+      - " "
+      - "&fGive the &7%name% &frank"
+      - " "
+      - "&7(Click for give)"
+  #This item will be shown when listing the saved grant logs.
+  item_node_log:
+    material: PAPER
+    name: "&eLog &7(#%id%)"
+    lore:
+      - ""
+      - "&7Created at %date%"
+      - ""
+      - "&eNode: &7%node%"
+      - "&eUser: &7%user%"
+      - "&eOperator: &7%operator%"
+      - "&eDuration: &7%duration%"
+      - "&eReason: &7%reason%"
+      - "&eContexts:"
+      - " %contexts%"

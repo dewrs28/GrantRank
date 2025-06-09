@@ -1,0 +1,39 @@
+title: "&8Grant the node"
+#Select how many rows this inventory will have. The available numbers are: 1, 2, 3, 4, 5, 6.
+rows: 3
+#Available item actions in this inventory:
+#OPEN_INVENTORY, GRANT_GIVE
+#NOTE: If the action type is "OPEN_INVENTORY", the item must also include the "inventory" path where the inventory to open will be specified.
+#The inventory to open must be "contexts.yml" or "select-time.yml"
+items:
+  grant:
+    slot: 10
+    material: BOOK
+    name: "&eGrant"
+    lore:
+      - "&7You give the node: &e%node%"
+  contexts:
+    slot: 11
+    material: BOOK
+    name: "&eContexts"
+    lore:
+      - "&7You give the rank/permission with the following contexts:"
+      - "&f"
+      - "%contexts%"
+    action: OPEN_INVENTORY
+    inventory: "contexts.yml"
+  time:
+    slot: 12
+    material: CLOCK
+    name: "&eTime"
+    lore:
+      - "&7You give the rank/permission for &e%time%"
+    action: OPEN_INVENTORY
+    inventory: "select-time.yml"
+  give-grant:
+    slot: 15
+    material: EMERALD_BLOCK
+    name: "&aGrant the rank/permission!"
+    lore:
+      - ""
+    action: GRANT_GIVE

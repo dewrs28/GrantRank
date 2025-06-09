@@ -1,0 +1,49 @@
+title: "&8Select the duration of the node"
+#Select how many rows this inventory will have. The available numbers are: 1, 2, 3, 4, 5, 6.
+rows: 3
+#Available item actions in this inventory:
+#SET_TIME
+#NOTE: If the action type is "SET_TIME", the item must also include the "value" path where the duration for the rank/permission will be specified.
+#The "value" can be any time unit using the format (s/m/h/d/w/mo/ye).
+#The "value" can also be "permanent" if it should be granted permanently, or "custom" if a specific time should be typed via chat.
+items:
+  permanent:
+    slot: 11
+    material: CLOCK
+    name: "&eGrant the rank/permission &apermanent"
+    lore:
+      - ""
+    action: SET_TIME
+    value: permanent
+  one_day:
+    slot: 13
+    material: CLOCK
+    name: "&eGrant the rank/permission for &a1 day"
+    lore:
+      - ""
+    action: SET_TIME
+    value: 1d
+  seven_days:
+    slot: 14
+    material: CLOCK
+    name: "&eGrant the rank/permission for &a7 days"
+    lore:
+      - ""
+    action: SET_TIME
+    value: 7d
+  one_month:
+    slot: 15
+    material: CLOCK
+    name: "&eGrant the rank/permission for &a1 month"
+    lore:
+      - ""
+    action: SET_TIME
+    value: 1mo
+  custom:
+    slot: 16
+    material: CLOCK
+    name: "&eGrant the rank/permission for &acustom time"
+    lore:
+      - ""
+    action: SET_TIME
+    value: custom
