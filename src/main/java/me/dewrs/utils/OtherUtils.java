@@ -1,6 +1,5 @@
 package me.dewrs.utils;
 
-import me.dewrs.GrantRank;
 import me.dewrs.config.ConfigManager;
 import me.dewrs.enums.CustomActionType;
 import me.dewrs.enums.NodeType;
@@ -10,6 +9,7 @@ import me.dewrs.logger.LogSender;
 import me.dewrs.model.CustomInventory;
 import me.dewrs.model.CustomItem;
 import me.dewrs.model.ModifyData;
+import net.luckperms.api.node.metadata.NodeMetadataKey;
 import org.bukkit.Sound;
 import org.bukkit.entity.Player;
 
@@ -41,6 +41,13 @@ public class OtherUtils {
             return NodeType.PERMISSION;
         }
         return NodeType.RANK;
+    }
+
+    public static NodeType getNodeType(String node) {
+        if(node.startsWith("group.")){
+            return NodeType.RANK;
+        }
+        return NodeType.PERMISSION;
     }
 
     public static boolean isValidPageFormat(String input) {
@@ -159,5 +166,9 @@ public class OtherUtils {
         } catch (NoSuchMethodException | InvocationTargetException | IllegalAccessException | ClassNotFoundException e) {
             throw new RuntimeException(e);
         }
+    }
+
+    public static NodeMetadataKey<String> getMetadataKey(){
+        return NodeMetadataKey.of("grant-id", String.class);
     }
 }

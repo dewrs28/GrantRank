@@ -28,12 +28,23 @@ public class MessagesManager {
     private String permissionSuccessTemp;
     private String grantSuccessNotify;
     private String permissionSuccessNotify;
+    private String confirmRevokeItem;
+    private String cancelRevokeItem;
+    private String grantRevoke;
+    private String permissionRevoke;
+    private String grantRevokeNotify;
+    private String permissionRevokeNotify;
+    private String revokeLore;
+    private String revokedLore;
+    private String globalLogsGuiOpen;
+    private String loadingLogs;
 
     public MessagesManager(GrantRank plugin){
         this.plugin = plugin;
         customConfig = new CustomConfig("messages.yml", null, plugin);
         customConfig.registerConfig();
-        loadConfig();
+        customConfig.updateConfig();
+        reload();
     }
 
     public void reload(){
@@ -43,6 +54,7 @@ public class MessagesManager {
 
     private void loadConfig(){
         FileConfiguration config = customConfig.getConfig();
+        //Chat Messages
         noArguments = config.getString("messages.no_arguments");
         noPlayer = config.getString("messages.no_player");
         grantsGuiOpen = config.getString("messages.grants_gui_open");
@@ -63,6 +75,17 @@ public class MessagesManager {
         invalidPermission = config.getString("messages.invalid_permission");
         grantSuccessNotify = config.getString("messages.grant_success_notify");
         permissionSuccessNotify = config.getString("messages.permission_success_notify");
+        grantRevoke = config.getString("messages.grant_revoked_success");
+        permissionRevoke = config.getString("messages.permission_revoked_success");
+        grantRevokeNotify = config.getString("messages.grant_revoked_notify");
+        permissionRevokeNotify = config.getString("messages.permission_revoked_notify");
+        globalLogsGuiOpen = config.getString("messages.global_logs_gui_open");
+        loadingLogs = config.getString("messages.loading_logs");
+        //Gui Messages
+        confirmRevokeItem = config.getString("gui.confirm_revoke");
+        cancelRevokeItem = config.getString("gui.cancel_revoke");
+        revokeLore = config.getString("gui.revoke_lore");
+        revokedLore = config.getString("gui.revoked_lore");
     }
 
     public String getNoArguments() {
@@ -143,5 +166,45 @@ public class MessagesManager {
 
     public String getPermissionSuccessNotify() {
         return permissionSuccessNotify;
+    }
+
+    public String getConfirmRevokeItem() {
+        return confirmRevokeItem;
+    }
+
+    public String getCancelRevokeItem() {
+        return cancelRevokeItem;
+    }
+
+    public String getGrantRevoke() {
+        return grantRevoke;
+    }
+
+    public String getPermissionRevoke() {
+        return permissionRevoke;
+    }
+
+    public String getGrantRevokeNotify() {
+        return grantRevokeNotify;
+    }
+
+    public String getPermissionRevokeNotify() {
+        return permissionRevokeNotify;
+    }
+
+    public String getRevokeLore() {
+        return revokeLore;
+    }
+
+    public String getRevokedLore() {
+        return revokedLore;
+    }
+
+    public String getGlobalLogsGuiOpen() {
+        return globalLogsGuiOpen;
+    }
+
+    public String getLoadingLogs() {
+        return loadingLogs;
     }
 }

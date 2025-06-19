@@ -4,6 +4,7 @@ import me.dewrs.GrantRank;
 import me.dewrs.enums.CustomActionType;
 import me.dewrs.logger.LogMessage;
 import me.dewrs.logger.LogSender;
+import me.dewrs.managers.InventoryManager;
 import me.dewrs.model.CustomInventory;
 import me.dewrs.model.CustomItem;
 import me.dewrs.utils.MessageUtils;
@@ -129,7 +130,9 @@ public class InventoryConfigManager {
                 inventories.add(inventory);
             }
         }
-        plugin.getInventoryManager().setInventories(inventories);
+        InventoryManager inventoryManager = plugin.getInventoryManager();
+        inventoryManager.setInventories(inventories);
+        inventoryManager.getInventories().add(inventoryManager.getConfirmationRevokeMenu());
     }
 
     private void createFolder() {

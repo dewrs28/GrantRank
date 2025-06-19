@@ -1,26 +1,37 @@
 messages:
-  no_permission: "&cYou don't have permission to do this!"
-  no_arguments: "&cPlease use the command correctly %c%"
-  no_player: "&cThis player has never joined the server."
-  invalid_time: "&cPlease provide a valid time."
-  invalid_context: "&cPlease provide a valid context."
-  invalid_permission: "&cPlease provide a valid permission."
-  nickname_too_long: "&cThis nickname is too long."
-  grants_gui_open: "&aYou have opened the grants inventory of &b%player%&a."
-  chat_time_input: "&eType how long you want to give the rank &8| &7(Type '#' to exit chat mode)"
-  chat_context_input: "&eType the context you want to add &8| &7(Type '#' to exit chat mode)"
-  chat_permission_input: "&eType the permission you want to add &8| &7(Type '#' to exit chat mode)"
-  chat_reason_input: "&eType the reason for granting the rank:"
-  grant_perm_success: "&aYou have successfully granted the rank &e%rank% &ato &e%player%&a! &7Contexts: %contexts%"
-  permission_perm_success: "&aYou have successfully granted the permission &e%permission% &ato &e%player%&a! &7Contexts: %contexts%"
-  grant_temp_success: "&aYou have successfully granted the rank &e%rank% &afor &e%time% &ato &e%player%&a! &7Contexts: %contexts%"
-  permission_temp_success: "&aYou have successfully granted the permission &e%permission% &afor &e%time% &ato &e%player%&a! &7Contexts: %contexts%"
-  grant_success_notify: "&eStaff &b%operator% &ehas granted the rank &b%rank% &efor &b%time% &eto player &b%player%&e. &7Contexts: %contexts%"
-  permission_success_notify: "&eStaff &b%operator% &ehas granted the permission &b%permission% &efor &b%time% &eto player &b%player%&e. &7Contexts: %contexts%"
-  reload: "&aThe plugin has been successfully reloaded."
+  no_permission: '&cYou don''t have permission to do this!'
+  no_arguments: '&cPlease use the command correctly %c%'
+  no_player: '&cThis player has never joined the server.'
+  invalid_time: '&cPlease provide a valid time.'
+  invalid_context: '&cPlease provide a valid context.'
+  invalid_permission: '&cPlease provide a valid permission.'
+  nickname_too_long: '&cThis nickname is too long.'
+  grants_gui_open: '&aYou have opened the grants inventory of &b%player%&a.'
+  global_logs_gui_open: '&aYou have opened the node logs inventory.'
+  chat_time_input: '&eType how long you want to give the rank &8| &7(Type ''#'' to exit chat mode)'
+  chat_context_input: '&eType the context you want to add &8| &7(Type ''#'' to exit chat mode)'
+  chat_permission_input: '&eType the permission you want to add &8| &7(Type ''#'' to exit chat mode)'
+  chat_reason_input: '&eType the reason for granting the rank:'
+  grant_perm_success: '&aYou have successfully granted the rank &e%rank% &ato &e%player%&a! &7Contexts: %contexts%'
+  permission_perm_success: '&aYou have successfully granted the permission &e%permission% &ato &e%player%&a! &7Contexts: %contexts%'
+  grant_temp_success: '&aYou have successfully granted the rank &e%rank% &afor &e%time% &ato &e%player%&a! &7Contexts: %contexts%'
+  permission_temp_success: '&aYou have successfully granted the permission &e%permission% &afor &e%time% &ato &e%player%&a! &7Contexts: %contexts%'
+  grant_success_notify: '&eStaff &b%operator% &ehas &agranted &ethe rank &b%rank% &efor &b%time% &eto player &b%player%&e. &7Contexts: %contexts%'
+  permission_success_notify: '&eStaff &b%operator% &ehas &agranted &ethe permission &b%permission% &efor &b%time% &eto player &b%player%&e. &7Contexts: %contexts%'
+  grant_revoked_success: '&aYou have successfully revoked the rank &e%rank% &afrom &e%player%&a. Represents id &e#%id%&a.'
+  permission_revoked_success: '&aYou have successfully revoked the permission &e%permission% &afrom &e%player%&a. Represents id &e#%id%&a.'
+  grant_revoked_notify: '&eStaff &b%operator% &ehas &crevoked &ethe rank &b%rank% &efrom player &b%player%&e. Represents id &b#%id%&a.'
+  permission_revoked_notify: '&eStaff &b%operator% &ehas &crevoked &ethe permission &b%permission% &efrom player &b%player%&e. Represents id &b#%id%&a.'
+  loading_logs: '&eLoading logs...'
+  reload: '&aThe plugin has been successfully reloaded.'
+gui:
+  confirm_revoke: '&aConfirm revoke this grant'
+  cancel_revoke: '&cCancel revoke this grant'
+  revoke_lore: '&aPress ''Q'' to revoke this grant'
+  revoked_lore: '&cThis grant is revoked'
 help_admin_command:
-  - "&d&lGRANTS PLUGIN"
-  - ""
-  - "&d/gadmin reload&f: Reload the plugin"
-  - "&d/gadmin logs&f: View the global logs"
-  - ""
+  - '&d&lGRANTS PLUGIN'
+  - ''
+  - '&d/gadmin reload&f: Reload the plugin'
+  - '&d/gadmin logs&f: View the global logs'
+  - ''

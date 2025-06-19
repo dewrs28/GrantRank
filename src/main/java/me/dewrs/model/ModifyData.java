@@ -15,6 +15,7 @@ public class ModifyData {
     private BukkitTask bukkitTask;
     private boolean isChatMode;
     private ChatModuleType chatSection;
+    private NodeLog nodeLog;
 
     public ModifyData(){
         this.contexts = new ArrayList<>();
@@ -82,5 +83,13 @@ public class ModifyData {
 
     public void setChatSection(ChatModuleType chatSection) {
         this.chatSection = chatSection;
+    }
+
+    public NodeLog getNodeLog() {
+        return nodeLog;
+    }
+
+    public void setNodeLog(NodeLog nodeLog) {
+        this.nodeLog = nodeLog;
     }
 }

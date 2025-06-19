@@ -4,7 +4,6 @@ import me.dewrs.GrantRank;
 import me.dewrs.enums.CustomActionType;
 import me.dewrs.enums.GrantMenuType;
 import me.dewrs.enums.NodeType;
-import me.dewrs.logger.LogSender;
 import me.dewrs.model.CustomInventory;
 import me.dewrs.model.CustomItem;
 import me.dewrs.model.ModifyData;
@@ -18,12 +17,13 @@ import net.luckperms.api.context.Context;
 import net.luckperms.api.context.MutableContextSet;
 import net.luckperms.api.model.group.Group;
 import org.bukkit.Bukkit;
-import org.bukkit.entity.Item;
+import org.bukkit.Material;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.Inventory;
 import org.bukkit.inventory.ItemStack;
 
 import java.util.*;
+import java.util.function.Consumer;
 
 public class InventoryManager {
 
@@ -38,27 +38,38 @@ public class InventoryManager {
     }
 
     @SuppressWarnings("All")
-    public Inventory createInventory(CustomInventory customInventory, InventoryPlayer inventoryPlayer) {
+    public void createInventory(CustomInventory customInventory, InventoryPlayer inventoryPlayer, Consumer<Inventory> callBack) {
         Inventory inv = Bukkit.createInventory(null, 9 * customInventory.getRows(), MessageUtils.getColoredMessage(customInventory.getTitle()
                 .replaceAll("%player%", inventoryPlayer.getTargetName())));
         String path = customInventory.getInv();
         if(path.startsWith("grants.yml")){
             if (plugin.getConfigManager().getMenuType().equals(GrantMenuType.LUCKPERMS)){
-                setItemGrantLPInInventory(customInventory, inv, inventoryPlayer);
+                setItemGrantLPInInventory(inv, inventoryPlayer);
             }else{
                 setItemGrantCustom(inv, inventoryPlayer);
             }
-        }else if(path.startsWith("nodes-logs.yml")){
-            setItemNodeLogInInventory(customInventory, inv, inventoryPlayer);
+            setStaticItemsInInventory(inv, customInventory, path, inventoryPlayer);
+            callBack.accept(inv);
+        }else if(path.startsWith("nodes-logs.yml")) {
+            setItemNodeLogInInventory(inv, inventoryPlayer, () -> {
+                setStaticItemsInInventory(inv, customInventory, path, inventoryPlayer);
+                callBack.accept(inv);
+            });
+        }else{
+            setStaticItemsInInventory(inv, customInventory, path, inventoryPlayer);
+            callBack.accept(inv);
         }
-        for (CustomItem item : customInventory.getCustomItems()) {
+    }
+
+    private void setStaticItemsInInventory(Inventory inv, CustomInventory customInventory, String path, InventoryPlayer inventoryPlayer){
+        List<CustomItem> items = new ArrayList<>(customInventory.getCustomItems());
+        for (CustomItem item : items) {
             if (item.getCustomActionType().equals(CustomActionType.GRANT)
                     || item.getCustomActionType().equals(CustomActionType.NODE_LOG)) continue;
             ItemStack itemStack = ItemUtils.getItemStackFromCustomItem(item);
             itemStack = replaceItemVariables(itemStack, path, inventoryPlayer);
             setItemInInventory(inv, itemStack, item.getSlot());
         }
-        return inv;
     }
 
     public void setupGrantPagination(InventoryPlayer inventoryPlayer, int maxItemsPerPage) {
@@ -100,8 +111,8 @@ public class InventoryManager {
         inventoryPlayer.setPaginatedCustomGroups(orderedPages);
     }
 
-    public void setupNodeLogPagination(InventoryPlayer inventoryPlayer, CustomInventory customInventory, Player player, int maxItemsPerPage) {
-        plugin.getStorageManager().getNodeLogs(nodeLogs -> {
+    public void setupNodeLogPagination(InventoryPlayer inventoryPlayer, int maxItemsPerPage, Runnable callBack) {
+        plugin.getStorageManager().getNodeLogs(1, nodeLogs -> {
             List<List<NodeLog>> pages = new ArrayList<>();
             List<NodeLog> currentPage = new ArrayList<>();
             for (NodeLog log : nodeLogs.values()) {
@@ -115,7 +126,7 @@ public class InventoryManager {
                 pages.add(currentPage);
             }
             inventoryPlayer.setPaginatedNodeLogs(pages);
-            player.openInventory(createInventory(customInventory, inventoryPlayer));
+            Bukkit.getScheduler().runTask(plugin, callBack);
         });
     }
 
@@ -166,12 +177,12 @@ public class InventoryManager {
         }
     }
 
-    private void setItemGrantLPInInventory(CustomInventory customInventory, Inventory inventory, InventoryPlayer inventoryPlayer) {
+    private void setItemGrantLPInInventory(Inventory inventory, InventoryPlayer inventoryPlayer) {
         int page = inventoryPlayer.getActualPage();
         List<Group> groupsToShow = inventoryPlayer.getGroupsForPage(page);
 
         int slot = 0;
-        removeNoUsedItems(slot, customInventory);
+        removeNoUsedItems(slot, inventoryPlayer.getCustomInventory());
         for (Group group : groupsToShow) {
             CustomItem customItem = ItemUtils.cloneCustomItem(plugin.getConfigManager().getItemLpGrantsMenu());
 
@@ -211,28 +222,38 @@ public class InventoryManager {
         customInventory.getCustomItems().removeIf(item -> item.getSlot() >= limit && item.getSlot() < (customInventory.getRows() - 2) * 9);
     }
 
-    @SuppressWarnings("All")
-    private void setItemNodeLogInInventory(CustomInventory customInventory, Inventory inventory, InventoryPlayer inventoryPlayer) {
+    private void setItemNodeLogInInventory(Inventory inventory, InventoryPlayer inventoryPlayer, Runnable callBack) {
         int page = inventoryPlayer.getActualPage();
         List<NodeLog> nodesToShow = inventoryPlayer.getNodesForPage(page);
-        int slot = 0;
-        for (NodeLog nodeLog : nodesToShow) {
-            String id = nodeLog.getId()+"";
-            String nameUser = nodeLog.getName_user();
-            String nameOperator = nodeLog.getName_operator();
-            String node = nodeLog.getNode();
-            String duration = TimeUtils.getTimeFromMilis(nodeLog.getExpiry());
-            String reason = nodeLog.getReason();
-            String date = TimeUtils.getDateFromMillis(nodeLog.getCreation_time());
-            MutableContextSet contextSet = nodeLog.getContextSet();
-            ArrayList<String> contextList = new ArrayList<>();
-            for (Context c : contextSet.toSet()) {
-                String key = c.getKey();
-                String value = c.getValue();
-                contextList.add(key + "=" + value);
-            }
-            CustomItem customItem = ItemUtils.cloneCustomItem(plugin.getConfigManager().getItemNodeLog());
-            ItemStack itemStack = ItemUtils.getItemStackFromCustomItem(customItem);
+        removeNoUsedItems(0, inventoryPlayer.getCustomInventory());
+        processSequentiallyRequestNodeLog(inventory, inventoryPlayer, 0, nodesToShow, callBack);
+    }
+
+    @SuppressWarnings("All")
+    private void processSequentiallyRequestNodeLog(Inventory inventory, InventoryPlayer inventoryPlayer, int index, List<NodeLog> nodeLogs, Runnable callBack){
+        if (index >= nodeLogs.size()) {
+            callBack.run();
+            return;
+        }
+        NodeLog nodeLog = nodeLogs.get(index);
+        String id = nodeLog.getId() + "";
+        String nameUser = nodeLog.getName_user();
+        String nameOperator = nodeLog.getName_operator();
+        String node = nodeLog.getNode();
+        String duration = TimeUtils.getTimeFromMilis(nodeLog.getExpiry());
+        String reason = nodeLog.getReason();
+        String date = TimeUtils.getDateFromMillis(nodeLog.getCreation_time());
+        MutableContextSet contextSet = nodeLog.getContextSet();
+        ArrayList<String> contextList = new ArrayList<>();
+        for (Context c : contextSet.toSet()) {
+            String key = c.getKey();
+            String value = c.getValue();
+            contextList.add(key + "=" + value);
+        }
+        CustomItem customItem = ItemUtils.cloneCustomItem(plugin.getConfigManager().getItemNodeLog());
+        customItem.setSlot(index);
+        customItem.setNodeLog(nodeLog);
+        plugin.getUserDataManager().setNodeData(nodeLog, (isValid) -> {
             Map<String, String> variables = new HashMap<>();
             variables.put("%id%", id);
             variables.put("%node%", node);
@@ -241,11 +262,35 @@ public class InventoryManager {
             variables.put("%duration%", duration);
             variables.put("%reason%", reason);
             variables.put("%date%", date);
+            variables.put("%revoke_message%", isValid ? plugin.getMessagesManager().getRevokeLore() : plugin.getMessagesManager().getRevokedLore());
+            ItemStack itemStack = ItemUtils.getItemStackFromCustomItem(customItem);
             ItemStack itemStackWithVariables = ItemUtils.getItemStackReplaceVariables(itemStack, variables);
             itemStackWithVariables = ItemUtils.getItemStackReplaceMultiLine(itemStack, "%contexts%", contextList);
-            inventory.setItem(slot, itemStackWithVariables);
-            slot++;
-        }
+            if(isValid) inventoryPlayer.getCustomInventory().getCustomItems().add(customItem);
+            inventory.setItem(index, itemStackWithVariables);
+            processSequentiallyRequestNodeLog(inventory, inventoryPlayer, index+1, nodeLogs, callBack);
+        });
+    }
+
+    public CustomInventory getConfirmationRevokeMenu(){
+        CustomItem confirm = new CustomItem(
+                plugin.getMessagesManager().getConfirmRevokeItem(),
+                1, Material.EMERALD_BLOCK,
+                new ArrayList<>(),
+                11,
+                CustomActionType.CONFIRM_REVOKE
+        );
+        CustomItem cancel = new CustomItem(
+                plugin.getMessagesManager().getCancelRevokeItem(),
+                1, Material.REDSTONE_BLOCK,
+                new ArrayList<>(),
+                15,
+                CustomActionType.CANCEL_REVOKE
+        );
+        ArrayList<CustomItem> customItems = new ArrayList<>();
+        customItems.add(confirm);
+        customItems.add(cancel);
+        return new CustomInventory("confirm_menu", "&8Confirm revoke", 3, customItems);
     }
 
     private void setItemInInventory(Inventory inventory, ItemStack itemStack, int slot) {

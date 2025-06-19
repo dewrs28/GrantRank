@@ -1,13 +1,11 @@
 package me.dewrs.managers;
 
 import me.dewrs.GrantRank;
-import me.dewrs.enums.ChatModuleType;
-import me.dewrs.enums.CustomActionType;
-import me.dewrs.enums.GrantMenuType;
-import me.dewrs.enums.SoundType;
+import me.dewrs.enums.*;
 import me.dewrs.model.CustomInventory;
 import me.dewrs.model.CustomItem;
 import me.dewrs.model.ModifyData;
+import me.dewrs.model.NodeLog;
 import me.dewrs.model.internal.InventoryPlayer;
 import me.dewrs.utils.MessageUtils;
 import me.dewrs.utils.OtherUtils;
@@ -16,11 +14,9 @@ import me.dewrs.utils.TimeUtils;
 import net.luckperms.api.model.group.Group;
 import org.bukkit.Bukkit;
 import org.bukkit.entity.Player;
+import org.bukkit.event.inventory.ClickType;
 import org.bukkit.scheduler.BukkitTask;
 
-import java.sql.Time;
-import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.Objects;
 
 public class ActionInventoryManager {
@@ -30,7 +26,7 @@ public class ActionInventoryManager {
         this.plugin = plugin;
     }
 
-    public void manageActionType(CustomItem customItem, InventoryPlayer inventoryPlayer){
+    public void manageActionType(CustomItem customItem, InventoryPlayer inventoryPlayer, ClickType clickType){
         Player player = Bukkit.getPlayerExact(inventoryPlayer.getName());
         if(player == null){
             return;
@@ -73,8 +69,58 @@ public class ActionInventoryManager {
                 manageFinishGrant(inventoryPlayer, player, customItem);
                 break;
             }
+            case NODE_LOG: {
+                manageRevokeGrant(inventoryPlayer, player, customItem, clickType);
+                break;
+            }
+            case CONFIRM_REVOKE: {
+                manageConfirmRevoke(inventoryPlayer, player);
+                break;
+            }
+            case CANCEL_REVOKE: {
+                player.closeInventory();
+                break;
+            }
             default: break;
         }
+    }
+
+    private void manageConfirmRevoke(InventoryPlayer inventoryPlayer, Player player){
+        NodeLog nodeLog = inventoryPlayer.getModifyData().getNodeLog();
+        plugin.getUserDataManager().removeNodeToPlayer(inventoryPlayer, player, nodeLog);
+        player.closeInventory();
+    }
+
+    private void manageRevokeGrant(InventoryPlayer inventoryPlayer, Player player, CustomItem customItem, ClickType clickType){
+        if(clickType != ClickType.DROP){
+            return;
+        }
+        NodeLog nodeLog = customItem.getNodeLog();
+        NodeType nodeType = OtherUtils.getNodeType(nodeLog.getNode());
+        if(nodeType == NodeType.RANK){
+            String[] split = nodeLog.getNode().split("\\.");
+            if(!PermissionUtils.canRevokeRank(player, split[1])){
+                player.sendMessage(GrantRank.prefix+MessageUtils.getColoredMessage(plugin.getMessagesManager().getNoPermission()));
+                player.closeInventory();
+                OtherUtils.playSound(player,10, 2, SoundType.NO_PERM, plugin.getConfigManager());
+                return;
+            }
+        }else{
+            if(!PermissionUtils.canRevokePermission(player)){
+                player.sendMessage(GrantRank.prefix+MessageUtils.getColoredMessage(plugin.getMessagesManager().getNoPermission()));
+                player.closeInventory();
+                OtherUtils.playSound(player,10, 2, SoundType.NO_PERM, plugin.getConfigManager());
+                return;
+            }
+        }
+        inventoryPlayer.getModifyData().setNodeLog(nodeLog);
+        InventoryManager inventoryManager = plugin.getInventoryManager();
+        CustomInventory customInventory = inventoryManager.getCustomInventory("confirm_menu");
+        inventoryManager.createInventory(customInventory, inventoryPlayer, inv -> {
+            player.openInventory(inv);
+            inventoryManager.setInventoryPlayer(inventoryPlayer, customInventory);
+            OtherUtils.playSound(player,10, 2, SoundType.OPEN_INV, plugin.getConfigManager());
+        });
     }
 
     private void manageNextPage(InventoryPlayer inventoryPlayer, Player player){
@@ -101,10 +147,12 @@ public class ActionInventoryManager {
         inventoryPlayer.setCustomInventory(customInventory);
 
         inventoryPlayer.setNavigating(true);
-        player.openInventory(inventoryManager.createInventory(customInventory, inventoryPlayer));
-        inventoryPlayer.setNavigating(false);
-        inventoryManager.setInventoryPlayer(inventoryPlayer, customInventory);
-        OtherUtils.playSound(player,10, 2, SoundType.OPEN_INV, plugin.getConfigManager());
+        inventoryManager.createInventory(customInventory, inventoryPlayer, inv -> {
+            player.openInventory(inv);
+            inventoryPlayer.setNavigating(false);
+            inventoryManager.setInventoryPlayer(inventoryPlayer, customInventory);
+            OtherUtils.playSound(player,10, 2, SoundType.OPEN_INV, plugin.getConfigManager());
+        });
     }
 
     private void manageBackPage(InventoryPlayer inventoryPlayer, Player player){
@@ -134,16 +182,19 @@ public class ActionInventoryManager {
         inventoryPlayer.setCustomInventory(customInventory);
 
         inventoryPlayer.setNavigating(true);
-        player.openInventory(inventoryManager.createInventory(customInventory, inventoryPlayer));
-        inventoryPlayer.setNavigating(false);
-        inventoryManager.setInventoryPlayer(inventoryPlayer, customInventory);
-        OtherUtils.playSound(player,10, 2, SoundType.OPEN_INV, plugin.getConfigManager());
+        inventoryManager.createInventory(customInventory, inventoryPlayer, inv -> {
+            player.openInventory(inv);
+            inventoryPlayer.setNavigating(false);
+            inventoryManager.setInventoryPlayer(inventoryPlayer, customInventory);
+            OtherUtils.playSound(player,10, 2, SoundType.OPEN_INV, plugin.getConfigManager());
+        });
     }
 
     private void manageAddPermission(InventoryPlayer inventoryPlayer, Player player){
         if(!PermissionUtils.canGivePermission(player)){
             player.sendMessage(GrantRank.prefix+MessageUtils.getColoredMessage(plugin.getMessagesManager().getNoPermission()));
             player.closeInventory();
+            OtherUtils.playSound(player,10, 2, SoundType.NO_PERM, plugin.getConfigManager());
             return;
         }
         ModifyData modifyData = inventoryPlayer.getModifyData();
@@ -163,17 +214,21 @@ public class ActionInventoryManager {
         CustomInventory customInventory = inventoryManager.getCustomInventory("select-time.yml");
         ModifyData modifyData = inventoryPlayer.getModifyData();
         modifyData.setRank(rank);
-        player.openInventory(inventoryManager.createInventory(customInventory, inventoryPlayer));
-        inventoryManager.setInventoryPlayer(inventoryPlayer, customInventory);
-        OtherUtils.playSound(player,10, 2, SoundType.OPEN_INV, plugin.getConfigManager());
+        inventoryManager.createInventory(customInventory, inventoryPlayer, inv -> {
+            player.openInventory(inv);
+            inventoryManager.setInventoryPlayer(inventoryPlayer, customInventory);
+            OtherUtils.playSound(player,10, 2, SoundType.OPEN_INV, plugin.getConfigManager());
+        });
     }
 
     private void manageOpenInventory(InventoryPlayer inventoryPlayer, Player player, CustomItem customItem){
         InventoryManager inventoryManager = plugin.getInventoryManager();
         CustomInventory customInventory = inventoryManager.getCustomInventory(customItem.getInventoryToOpen());
-        player.openInventory(inventoryManager.createInventory(customInventory, inventoryPlayer));
-        inventoryManager.setInventoryPlayer(inventoryPlayer, customInventory);
-        OtherUtils.playSound(player,10, 2, SoundType.OPEN_INV, plugin.getConfigManager());
+        inventoryManager.createInventory(customInventory, inventoryPlayer, inv -> {
+            player.openInventory(inv);
+            inventoryManager.setInventoryPlayer(inventoryPlayer, customInventory);
+            OtherUtils.playSound(player,10, 2, SoundType.OPEN_INV, plugin.getConfigManager());
+        });
     }
 
     private void manageFinishGrant(InventoryPlayer inventoryPlayer, Player player, CustomItem customItem){
@@ -206,9 +261,11 @@ public class ActionInventoryManager {
 
         InventoryManager inventoryManager = plugin.getInventoryManager();
         CustomInventory customInventory = inventoryManager.getCustomInventory("contexts.yml");
-        player.openInventory(inventoryManager.createInventory(customInventory, inventoryPlayer));
-        inventoryManager.setInventoryPlayer(inventoryPlayer, customInventory);
-        OtherUtils.playSound(player,10, 2, SoundType.OPEN_INV, plugin.getConfigManager());
+        inventoryManager.createInventory(customInventory, inventoryPlayer, inv -> {
+            player.openInventory(inv);
+            inventoryManager.setInventoryPlayer(inventoryPlayer, customInventory);
+            OtherUtils.playSound(player,10, 2, SoundType.OPEN_INV, plugin.getConfigManager());
+        });
     }
 
     private void manageSetContext(InventoryPlayer inventoryPlayer, Player player){
@@ -264,19 +321,26 @@ public class ActionInventoryManager {
                 CustomInventory customInventory;
                 if(successful){
                     customInventory = inventoryManager.getCustomInventory("contexts.yml");
-                    player.openInventory(inventoryManager.createInventory(customInventory, inventoryPlayer));
-                    inventoryManager.setInventoryPlayer(inventoryPlayer, customInventory);
+                    inventoryManager.createInventory(customInventory, inventoryPlayer, inv -> {
+                        player.openInventory(inv);
+                        inventoryManager.setInventoryPlayer(inventoryPlayer, customInventory);
+                        OtherUtils.playSound(player,10, 2, SoundType.OPEN_INV, plugin.getConfigManager());
+                    });
                 }else{
                     customInventory = inventoryPlayer.getCustomInventory();
-                    player.openInventory(inventoryManager.createInventory(customInventory, inventoryPlayer));
+                    inventoryManager.createInventory(customInventory, inventoryPlayer, inv -> {
+                        player.openInventory(inv);
+                        OtherUtils.playSound(player,10, 2, SoundType.OPEN_INV, plugin.getConfigManager());
+                    });
                 }
-                OtherUtils.playSound(player,10, 2, SoundType.OPEN_INV, plugin.getConfigManager());
                 break;
             }
             case CONTEXT: {
                 CustomInventory customInventory = inventoryPlayer.getCustomInventory();
-                player.openInventory(inventoryManager.createInventory(customInventory, inventoryPlayer));
-                OtherUtils.playSound(player,10, 2, SoundType.OPEN_INV, plugin.getConfigManager());
+                inventoryManager.createInventory(customInventory, inventoryPlayer, inv -> {
+                    player.openInventory(inv);
+                    OtherUtils.playSound(player,10, 2, SoundType.OPEN_INV, plugin.getConfigManager());
+                });
                 break;
             }
             case REASON: {
@@ -284,8 +348,10 @@ public class ActionInventoryManager {
                     plugin.getUserDataManager().giveNodeToPlayer(inventoryPlayer, player);
                     inventoryManager.removeInventoryPlayer(inventoryPlayer);
                 }else{
-                    player.openInventory(inventoryManager.createInventory(inventoryPlayer.getCustomInventory(), inventoryPlayer));
-                    OtherUtils.playSound(player,10, 2, SoundType.OPEN_INV, plugin.getConfigManager());
+                    inventoryManager.createInventory(inventoryPlayer.getCustomInventory(), inventoryPlayer, inv -> {
+                        player.openInventory(inv);
+                        OtherUtils.playSound(player,10, 2, SoundType.OPEN_INV, plugin.getConfigManager());
+                    });
                 }
                 break;
             }
@@ -293,13 +359,18 @@ public class ActionInventoryManager {
                 CustomInventory customInventory;
                 if(successful){
                     customInventory = inventoryManager.getCustomInventory("select-time.yml");
-                    player.openInventory(inventoryManager.createInventory(customInventory, inventoryPlayer));
-                    inventoryManager.setInventoryPlayer(inventoryPlayer, customInventory);
+                    inventoryManager.createInventory(customInventory, inventoryPlayer, inv -> {
+                        player.openInventory(inv);
+                        inventoryManager.setInventoryPlayer(inventoryPlayer, customInventory);
+                        OtherUtils.playSound(player,10, 2, SoundType.OPEN_INV, plugin.getConfigManager());
+                    });
                 }else{
                     customInventory = inventoryPlayer.getCustomInventory();
-                    player.openInventory(inventoryManager.createInventory(customInventory, inventoryPlayer));
+                    inventoryManager.createInventory(customInventory, inventoryPlayer, inv -> {
+                        player.openInventory(inv);
+                        OtherUtils.playSound(player,10, 2, SoundType.OPEN_INV, plugin.getConfigManager());
+                    });
                 }
-                OtherUtils.playSound(player,10, 2, SoundType.OPEN_INV, plugin.getConfigManager());
                 break;
             }
         }

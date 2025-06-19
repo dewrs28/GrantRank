@@ -16,6 +16,7 @@ public class CustomItem {
     private String inventoryToOpen;
     private String cacheFormat;
     private Group grantToGive;
+    private NodeLog nodeLog;
 
     public CustomItem(String name, int amount, Material material, ArrayList<String> lore, int slot, CustomActionType customActionType) {
         this.name = name;
@@ -96,5 +97,13 @@ public class CustomItem {
 
     public void setGrantToGive(Group grantToGive) {
         this.grantToGive = grantToGive;
+    }
+
+    public NodeLog getNodeLog() {
+        return nodeLog;
+    }
+
+    public void setNodeLog(NodeLog nodeLog) {
+        this.nodeLog = nodeLog;
     }
 }

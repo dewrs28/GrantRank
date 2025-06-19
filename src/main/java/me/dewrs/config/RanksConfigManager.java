@@ -2,7 +2,6 @@ package me.dewrs.config;
 
 import me.dewrs.GrantRank;
 import me.dewrs.enums.CustomActionType;
-import me.dewrs.logger.LogSender;
 import me.dewrs.model.CustomInventory;
 import me.dewrs.model.CustomItem;
 import me.dewrs.utils.ItemUtils;
@@ -10,7 +9,6 @@ import me.dewrs.utils.OtherUtils;
 import org.bukkit.configuration.file.FileConfiguration;
 
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
 
 public class RanksConfigManager {

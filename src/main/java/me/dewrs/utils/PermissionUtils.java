@@ -5,6 +5,7 @@ import org.bukkit.entity.Player;
 public class PermissionUtils {
     private static final String mainPrefix = "grant.";
     private static final String givePrefix = "give.";
+    private static final String revokePrefix = "revoke.";
 
     public static boolean canUseGrants(Player player){
         return player.hasPermission(mainPrefix+"use");
@@ -34,5 +35,15 @@ public class PermissionUtils {
     public static boolean canReceiveNotifies(Player player){
         return player.hasPermission(mainPrefix+"notify");
         // grant.notify
+    }
+
+    public static boolean canRevokeRank(Player player, String rank){
+        return player.hasPermission(mainPrefix+revokePrefix+"rank."+rank);
+        // grant.revoke.rank.(rank)
+    }
+
+    public static boolean canRevokePermission(Player player){
+        return player.hasPermission(mainPrefix+revokePrefix+"permission");
+        // grant.revoke.permission
     }
 }

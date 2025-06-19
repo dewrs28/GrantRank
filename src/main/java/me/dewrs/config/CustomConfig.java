@@ -1,12 +1,14 @@
 package me.dewrs.config;
 
 import me.dewrs.GrantRank;
+import me.dewrs.libs.configupdater.ConfigUpdater;
 import org.bukkit.configuration.InvalidConfigurationException;
 import org.bukkit.configuration.file.FileConfiguration;
 import org.bukkit.configuration.file.YamlConfiguration;
 
 import java.io.File;
 import java.io.IOException;
+import java.util.Collections;
 
 public class CustomConfig {
     private GrantRank plugin;
@@ -82,6 +84,12 @@ public class CustomConfig {
         }
         return true;
     }
+
+    public void updateConfig(){
+        try {
+            ConfigUpdater.update(plugin, fileName, file, Collections.emptyList());
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+    }
 }
-
-

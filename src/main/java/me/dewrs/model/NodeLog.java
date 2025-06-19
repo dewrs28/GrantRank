@@ -1,6 +1,7 @@
 package me.dewrs.model;
 
 import net.luckperms.api.context.MutableContextSet;
+import net.luckperms.api.node.Node;
 
 import java.util.UUID;
 
@@ -14,8 +15,10 @@ public class NodeLog {
     private String reason;
     private MutableContextSet contextSet;
     private long creation_time;
+    private boolean isRevoked;
+    private Node nodeData;
 
-    public NodeLog(UUID uuid_user, String name_user, String name_operator, String node, long expiry, String reason, MutableContextSet contextSet, long creation_time) {
+    public NodeLog(UUID uuid_user, String name_user, String name_operator, String node, long expiry, String reason, MutableContextSet contextSet, long creation_time, boolean isRevoked) {
         this.uuid_user = uuid_user;
         this.name_user = name_user;
         this.name_operator = name_operator;
@@ -24,6 +27,7 @@ public class NodeLog {
         this.reason = reason;
         this.contextSet = contextSet;
         this.creation_time = creation_time;
+        this.isRevoked = isRevoked;
     }
 
     public int getId() {
@@ -96,5 +100,21 @@ public class NodeLog {
 
     public void setCreation_time(long creation_time) {
         this.creation_time = creation_time;
+    }
+
+    public boolean isRevoked() {
+        return isRevoked;
+    }
+
+    public void setRevoked(boolean revoked) {
+        isRevoked = revoked;
+    }
+
+    public Node getNodeData() {
+        return nodeData;
+    }
+
+    public void setNodeData(Node nodeData) {
+        this.nodeData = nodeData;
     }
 }

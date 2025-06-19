@@ -12,8 +12,6 @@ import me.dewrs.utils.MessageUtils;
 import me.dewrs.utils.OtherUtils;
 import me.dewrs.utils.PermissionUtils;
 import org.bukkit.Bukkit;
-import org.bukkit.Registry;
-import org.bukkit.Sound;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandExecutor;
 import org.bukkit.command.CommandSender;
@@ -74,11 +72,12 @@ public class GrantCommand implements CommandExecutor {
         }else{
             inventoryManager.setupCustomPagination(inventoryPlayer);
         }
-        player.openInventory(inventoryManager.createInventory(customInventory, inventoryPlayer));
-        inventoryManager.setInventoryPlayer(inventoryPlayer, customInventory);
-
-        player.sendMessage(GrantRank.prefix+MessageUtils.getColoredMessage(plugin.getMessagesManager().getGrantsGuiOpen()
-                .replaceAll("%player%", inventoryPlayer.getTargetName())));
-        OtherUtils.playSound(player,10, 2, SoundType.OPEN_INV, plugin.getConfigManager());
+        inventoryManager.createInventory(customInventory, inventoryPlayer, inv -> {
+            player.openInventory(inv);
+            inventoryManager.setInventoryPlayer(inventoryPlayer, customInventory);
+            player.sendMessage(GrantRank.prefix+MessageUtils.getColoredMessage(plugin.getMessagesManager().getGrantsGuiOpen()
+                    .replaceAll("%player%", inventoryPlayer.getTargetName())));
+            OtherUtils.playSound(player,10, 2, SoundType.OPEN_INV, plugin.getConfigManager());
+        });
     }
 }

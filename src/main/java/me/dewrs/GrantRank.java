@@ -3,10 +3,7 @@ package me.dewrs;
 import me.dewrs.bstats.Metrics;
 import me.dewrs.commands.GrantAdminCommand;
 import me.dewrs.commands.GrantCommand;
-import me.dewrs.config.ConfigManager;
-import me.dewrs.config.InventoryConfigManager;
-import me.dewrs.config.MessagesManager;
-import me.dewrs.config.RanksConfigManager;
+import me.dewrs.config.*;
 import me.dewrs.listeners.ChatListener;
 import me.dewrs.listeners.InventoryListener;
 import me.dewrs.listeners.PlayerListener;
@@ -90,10 +87,6 @@ public class GrantRank extends JavaPlugin {
 
     public InventoryManager getInventoryManager() {
         return inventoryManager;
-    }
-
-    public InventoryConfigManager getInventoryConfigManager() {
-        return inventoryConfigManager;
     }
 
     public LuckPerms getLuckPermsApi() {

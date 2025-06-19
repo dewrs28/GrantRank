@@ -36,7 +36,8 @@ public class ConfigManager {
         this.plugin = plugin;
         customConfig = new CustomConfig("config.yml", null, plugin);
         customConfig.registerConfig();
-        loadConfig();
+        customConfig.updateConfig();
+        reload();
     }
 
     public void reload(){

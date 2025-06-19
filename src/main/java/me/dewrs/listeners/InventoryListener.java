@@ -9,6 +9,7 @@ import me.dewrs.model.internal.InventoryPlayer;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
+import org.bukkit.event.inventory.ClickType;
 import org.bukkit.event.inventory.InventoryClickEvent;
 import org.bukkit.event.inventory.InventoryCloseEvent;
 
@@ -30,7 +31,8 @@ public class InventoryListener implements Listener {
         int slot = event.getSlot();
         CustomItem customItem = plugin.getInventoryManager().getCustomItemBySlot(slot, inventoryPlayer);
         if(customItem == null) return;
-        actionInventoryManager.manageActionType(customItem, inventoryPlayer);
+        ClickType clickType = event.getClick();
+        actionInventoryManager.manageActionType(customItem, inventoryPlayer, clickType);
     }
 
     @EventHandler

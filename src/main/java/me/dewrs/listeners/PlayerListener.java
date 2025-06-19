@@ -1,7 +1,6 @@
 package me.dewrs.listeners;
 
 import me.dewrs.GrantRank;
-import me.dewrs.managers.ActionInventoryManager;
 import me.dewrs.managers.InventoryManager;
 import me.dewrs.model.internal.InventoryPlayer;
 import me.dewrs.utils.MessageUtils;

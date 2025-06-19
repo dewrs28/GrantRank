@@ -11,8 +11,7 @@ import org.bukkit.Bukkit;
 import org.bukkit.scheduler.BukkitRunnable;
 
 import java.sql.*;
-import java.util.TreeMap;
-import java.util.UUID;
+import java.util.*;
 import java.util.function.Consumer;
 
 public class StorageManager {
@@ -24,7 +23,7 @@ public class StorageManager {
         setup();
     }
 
-    private void setup(){
+    private void setup() {
         ConfigManager configManager = plugin.getConfigManager();
         StorageType storageType = plugin.getConfigManager().getStorageType();
         ConnectionFactory connectionFactory;
@@ -42,18 +41,22 @@ public class StorageManager {
                 connectionFactory = new SQLiteConnection(plugin.getDataFolder());
                 break;
             }
-            default: connectionFactory = null; break;
+            default:
+                connectionFactory = null;
+                break;
         }
         plugin.setConnectionFactory(connectionFactory);
         try (Connection con = getConnection()) {
             this.storageType = storageType;
-        }catch (SQLException e){
+        } catch (SQLException e) {
             LogSender.sendLogMessage(LogMessage.STORAGE_CONNECTION_ERROR.format(storageType.toString()));
             Bukkit.getPluginManager().disablePlugin(plugin);
             return;
         }
         createTables();
-        LogSender.sendLogMessage(LogMessage.STORAGE_CORRECT.format(storageType.toString()));
+        migrateDatabase(() -> {
+            LogSender.sendLogMessage(LogMessage.STORAGE_CORRECT.format(storageType.toString()));
+        });
     }
 
     public Connection getConnection() throws SQLException {
@@ -73,7 +76,8 @@ public class StorageManager {
                     "node TEXT NOT NULL,"+
                     "expiry BIGINT NOT NULL,"+
                     "reason TEXT NOT NULL,"+
-                    "creation_time BIGINT NOT NULL)");
+                    "creation_time BIGINT NOT NULL," +
+                    "revoked BOOLEAN NOT NULL)");
             statementMain.executeUpdate();
             PreparedStatement statementContexts = con.prepareStatement(
                     "CREATE TABLE IF NOT EXISTS contexts_logs (" +
@@ -94,7 +98,7 @@ public class StorageManager {
             public void run() {
                 try (Connection con = getConnection()) {
                     PreparedStatement statement = con.prepareStatement("INSERT INTO nodes_logs ("+
-                                    "uuid_user, name_user, name_operator, node, expiry, reason, creation_time) VALUES (?, ?, ?, ?, ?, ?, ?)",
+                                    "uuid_user, name_user, name_operator, node, expiry, reason, creation_time, revoked) VALUES (?, ?, ?, ?, ?, ?, ?, ?)",
                             Statement.RETURN_GENERATED_KEYS);
                     statement.setString(1, nodeLog.getUuid_user().toString());
                     statement.setString(2, nodeLog.getName_user());
@@ -103,6 +107,7 @@ public class StorageManager {
                     statement.setLong(5, nodeLog.getExpiry());
                     statement.setString(6, nodeLog.getReason());
                     statement.setLong(7, nodeLog.getCreation_time());
+                    statement.setBoolean(8, nodeLog.isRevoked());
                     statement.executeUpdate();
 
                     ResultSet generatedKeys = statement.getGeneratedKeys();
@@ -122,7 +127,7 @@ public class StorageManager {
                             e.printStackTrace();
                         }
                     }
-                    callBack.run();
+                    Bukkit.getScheduler().runTask(plugin, callBack);
                 }catch (SQLException e){
                     e.printStackTrace();
                 }
@@ -130,16 +135,44 @@ public class StorageManager {
         }.runTaskAsynchronously(plugin);
     }
 
-    public void getNodeLogs(Consumer<TreeMap<Integer, NodeLog>> callBack){
+    public void updateRevokeNodeLog(int id, boolean isRevoked, Runnable callBack) {
+        new BukkitRunnable() {
+            @Override
+            public void run() {
+                try (Connection con = getConnection()) {
+                    PreparedStatement statement = con.prepareStatement("UPDATE nodes_logs SET revoked = ? WHERE id = ?",
+                            Statement.RETURN_GENERATED_KEYS);
+                    statement.setBoolean(1, isRevoked);
+                    statement.setInt(2, id);
+                    statement.executeUpdate();
+                    Bukkit.getScheduler().runTask(plugin, callBack);
+                } catch (SQLException ex) {
+                    ex.printStackTrace();
+                }
+            }
+        }.runTaskAsynchronously(plugin);
+    }
+
+    //QueryType:
+    //1 : Normal - With "revoked"
+    //2 : v1.1 - Without "revoked"
+    public void getNodeLogs(int queryType, Consumer<TreeMap<Integer, NodeLog>> callBack){
+        String query = "";
+        if(queryType == 1) query = "SELECT n.id, n.uuid_user, n.name_user, n.name_operator, n.node, n.expiry, n.reason, n.creation_time, n.revoked, c.context_key, c.context_value "+
+                "FROM nodes_logs n " +
+                "LEFT JOIN contexts_logs c " +
+                "ON n.id = c.node_id";
+        if(queryType == 2) query = "SELECT n.id, n.uuid_user, n.name_user, n.name_operator, n.node, n.expiry, n.reason, n.creation_time, c.context_key, c.context_value "+
+                    "FROM nodes_logs n " +
+                    "LEFT JOIN contexts_logs c " +
+                    "ON n.id = c.node_id";
         TreeMap<Integer, NodeLog> nodesLogs = new TreeMap<>();
+        String finalQuery = query;
         new BukkitRunnable(){
             @Override
             public void run() {
                 try (Connection con = getConnection()) {
-                    PreparedStatement statement = con.prepareStatement("SELECT n.id, n.uuid_user, n.name_user, n.name_operator, n.node, n.expiry, n.reason, n.creation_time, c.context_key, c.context_value "+
-                            "FROM nodes_logs n " +
-                            "LEFT JOIN contexts_logs c " +
-                            "ON n.id = c.node_id");
+                    PreparedStatement statement = con.prepareStatement(finalQuery);
                     ResultSet resultSet = statement.executeQuery();
                     while (resultSet.next()){
                         int id = resultSet.getInt("id");
@@ -163,13 +196,13 @@ public class StorageManager {
                         if (contextKey != null && contextValue != null) {
                             contextSet.add(contextKey, contextValue);
                         }
-                        NodeLog nodeLog = new NodeLog(uuid_user, name_user, name_operator, node, expiry, reason, contextSet, creation_time);
+                        boolean isRevoked = false;
+                        if(queryType == 1) isRevoked = resultSet.getBoolean("revoked");
+                        NodeLog nodeLog = new NodeLog(uuid_user, name_user, name_operator, node, expiry, reason, contextSet, creation_time, isRevoked);
                         nodeLog.setId(id);
                         nodesLogs.put(id, nodeLog);
                     }
-                    Bukkit.getScheduler().runTask(plugin, () -> {
-                        callBack.accept(nodesLogs);
-                    });
+                    Bukkit.getScheduler().runTask(plugin, () -> callBack.accept(nodesLogs));
                 }catch (SQLException e){
                     e.printStackTrace();
                 }
@@ -177,38 +210,79 @@ public class StorageManager {
         }.runTaskAsynchronously(plugin);
     }
 
-    public void purgeNodeLogs(Runnable callBack){
-        new BukkitRunnable(){
-            @Override
-            public void run() {
-                try(Connection con = getConnection()){
-                    PreparedStatement statement1 = con.prepareStatement("DELETE FROM contexts_logs");
-                    PreparedStatement statement2 = con.prepareStatement("DELETE FROM nodes_logs");
-                    PreparedStatement statement3;
-                    PreparedStatement statement4;
-                    switch (storageType){
-                        case MYSQL: {
-                            statement3 = con.prepareStatement("ALTER TABLE nodes_logs AUTO_INCREMENT = 1");
-                            statement4 = con.prepareStatement("ALTER TABLE contexts_logs AUTO_INCREMENT = 1");
-                            break;
-                        }
-                        case SQLITE:
-                            default: {
-                            statement3 = con.prepareStatement("DELETE FROM sqlite_sequence WHERE name='nodes_logs'");
-                            statement4 = con.prepareStatement("DELETE FROM sqlite_sequence WHERE name='contexts_logs'");
-                            break;
-                        }
-                    }
-                    statement1.executeUpdate();
-                    statement2.executeUpdate();
-                    statement3.executeUpdate();
-                    statement4.executeUpdate();
-                    callBack.run();
-                }catch (SQLException e){
-                    e.printStackTrace();
+    public void purgeNodeLogs() {
+        try (Connection con = getConnection()) {
+            PreparedStatement statement1 = con.prepareStatement("DELETE FROM contexts_logs");
+            PreparedStatement statement2 = con.prepareStatement("DELETE FROM nodes_logs");
+            PreparedStatement statement3;
+            PreparedStatement statement4;
+            switch (storageType) {
+                case MYSQL: {
+                    statement3 = con.prepareStatement("ALTER TABLE nodes_logs AUTO_INCREMENT = 1");
+                    statement4 = con.prepareStatement("ALTER TABLE contexts_logs AUTO_INCREMENT = 1");
+                    break;
+                }
+                case SQLITE:
+                default: {
+                    statement3 = con.prepareStatement("DELETE FROM sqlite_sequence WHERE name='nodes_logs'");
+                    statement4 = con.prepareStatement("DELETE FROM sqlite_sequence WHERE name='contexts_logs'");
+                    break;
                 }
             }
-        }.runTaskAsynchronously(plugin);
+            statement1.executeUpdate();
+            statement2.executeUpdate();
+            statement3.executeUpdate();
+            statement4.executeUpdate();
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+    }
+
+    public void deleteNodeLogsTables(){
+        try (Connection con = getConnection()) {
+            PreparedStatement statement1 = con.prepareStatement("DROP TABLE IF EXISTS contexts_logs");
+            PreparedStatement statement2 = con.prepareStatement("DROP TABLE IF EXISTS nodes_logs");
+            statement1.executeUpdate();
+            statement2.executeUpdate();
+        }catch (SQLException e){
+            e.printStackTrace();
+        }
+    }
+
+    public void migrateDatabase(Runnable callBack){
+        try (Connection con = getConnection()) {
+            PreparedStatement statement = con.prepareStatement("SELECT * FROM nodes_logs LIMIT 1");
+            ResultSet rs = statement.executeQuery();
+
+            ResultSetMetaData metaData = rs.getMetaData();
+            int columnCount = metaData.getColumnCount();
+
+            for (int i = 1; i <= columnCount; i++) {
+                if (metaData.getColumnName(i).equalsIgnoreCase("revoked")) {
+                    callBack.run();
+                    return;
+                }
+            }
+
+            getNodeLogs(2, nodeLogs -> {
+               deleteNodeLogsTables();
+               createTables();
+               processSequentially(nodeLogs, 0, callBack);
+            });
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+    }
+
+    private void processSequentially(TreeMap<Integer, NodeLog> entries, int index, Runnable callBack) {
+        List<Map.Entry<Integer, NodeLog>> list = new ArrayList<>(entries.entrySet());
+        if (index >= list.size()) {
+            callBack.run();
+            return;
+        }
+
+        NodeLog nodeLog = list.get(index).getValue();
+        createNodeLog(nodeLog, () -> processSequentially(entries, index + 1, callBack));
     }
 
     public StorageType getStorageType() {

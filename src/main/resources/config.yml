@@ -64,3 +64,5 @@ settings:
       - "&eReason: &7%reason%"
       - "&eContexts:"
       - " %contexts%"
+      - ""
+      - "%revoke_message%" #Indicates whether the log can be revoked or has already been revoked previously.
