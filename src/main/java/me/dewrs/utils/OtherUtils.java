@@ -91,6 +91,8 @@ public class OtherUtils {
 
     public static boolean isValidCustomAction(CustomActionType customActionType, String inv){
         switch (customActionType){
+            case CONFIRM_REVOKE:
+            case CANCEL_REVOKE:
             case NODE_LOG:
             case GRANT: {
                 return false;
