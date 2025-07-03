@@ -27,6 +27,11 @@ public class PermissionUtils {
         // grant.logs.global
     }
 
+    public static boolean canViewUserLogs(Player player){
+        return player.hasPermission(mainPrefix+"logs.player");
+        // grant.logs.player
+    }
+
     public static boolean isGrantRankAdmin(Player player){
         return player.hasPermission(mainPrefix+"admin");
         // grant.admin

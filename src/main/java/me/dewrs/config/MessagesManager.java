@@ -38,6 +38,7 @@ public class MessagesManager {
     private String revokedLore;
     private String globalLogsGuiOpen;
     private String loadingLogs;
+    private String loadingUserLogs;
 
     public MessagesManager(GrantRank plugin){
         this.plugin = plugin;
@@ -81,6 +82,7 @@ public class MessagesManager {
         permissionRevokeNotify = config.getString("messages.permission_revoked_notify");
         globalLogsGuiOpen = config.getString("messages.global_logs_gui_open");
         loadingLogs = config.getString("messages.loading_logs");
+        loadingUserLogs = config.getString("messages.loading_user_logs");
         //Gui Messages
         confirmRevokeItem = config.getString("gui.confirm_revoke");
         cancelRevokeItem = config.getString("gui.cancel_revoke");
@@ -206,5 +208,9 @@ public class MessagesManager {
 
     public String getLoadingLogs() {
         return loadingLogs;
+    }
+
+    public String getLoadingUserLogs() {
+        return loadingUserLogs;
     }
 }

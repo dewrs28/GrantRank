@@ -12,6 +12,13 @@ items:
     lore:
       - ""
     action: BACK
+  view-actual-grants:
+    slot: 48
+    material: PAPER
+    name: "&bView actual grants"
+    lore:
+      - ""
+    action: VIEW_GRANTS
   add-permission:
     slot: 49
     material: COMPASS

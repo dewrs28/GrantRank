@@ -111,6 +111,25 @@ public class InventoryManager {
         inventoryPlayer.setPaginatedCustomGroups(orderedPages);
     }
 
+    public void setupUserNodeLogPagination(InventoryPlayer inventoryPlayer, int maxItemsPerPage, Runnable callBack){
+        plugin.getStorageManager().getUserNodeLogs(inventoryPlayer.getTargetUuid().toString(), nodeLogs -> {
+            List<List<NodeLog>> pages = new ArrayList<>();
+            List<NodeLog> currentPage = new ArrayList<>();
+            for (NodeLog log : nodeLogs.values()) {
+                if (currentPage.size() >= maxItemsPerPage) {
+                    pages.add(currentPage);
+                    currentPage = new ArrayList<>();
+                }
+                currentPage.add(log);
+            }
+            if (!currentPage.isEmpty()) {
+                pages.add(currentPage);
+            }
+            inventoryPlayer.setPaginatedNodeLogs(pages);
+            Bukkit.getScheduler().runTask(plugin, callBack);
+        });
+    }
+
     public void setupNodeLogPagination(InventoryPlayer inventoryPlayer, int maxItemsPerPage, Runnable callBack) {
         plugin.getStorageManager().getNodeLogs(1, nodeLogs -> {
             List<List<NodeLog>> pages = new ArrayList<>();

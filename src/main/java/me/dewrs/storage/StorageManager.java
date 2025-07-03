@@ -153,6 +153,54 @@ public class StorageManager {
         }.runTaskAsynchronously(plugin);
     }
 
+    public void getUserNodeLogs(String uuid, Consumer<TreeMap<Integer, NodeLog>> callBack){
+        TreeMap<Integer, NodeLog> nodesLogs = new TreeMap<>();
+        new BukkitRunnable(){
+            @Override
+            public void run() {
+                try (Connection con = getConnection()) {
+                    PreparedStatement statement = con.prepareStatement("SELECT n.id, n.uuid_user, n.name_user, n.name_operator, n.node, n.expiry, n.reason, n.creation_time, n.revoked, c.context_key, c.context_value "+
+                            "FROM nodes_logs n " +
+                            "LEFT JOIN contexts_logs c " +
+                            "ON n.id = c.node_id "+
+                            "WHERE n.uuid_user = ?");
+                    statement.setString(1, uuid);
+                    ResultSet resultSet = statement.executeQuery();
+                    while (resultSet.next()){
+                        int id = resultSet.getInt("id");
+                        String contextKey = resultSet.getString("context_key");
+                        String contextValue = resultSet.getString("context_value");
+                        if(nodesLogs.containsKey(id)){
+                            NodeLog nodeLog = nodesLogs.get(id);
+                            if (contextKey != null && contextValue != null) {
+                                nodeLog.getContextSet().add(contextKey, contextValue);
+                            }
+                            continue;
+                        }
+                        UUID uuid_user = UUID.fromString(resultSet.getString("uuid_user"));
+                        String name_user = resultSet.getString("name_user");
+                        String name_operator = resultSet.getString("name_operator");
+                        String node = resultSet.getString("node");
+                        long expiry = resultSet.getLong("expiry");
+                        String reason = resultSet.getString("reason");
+                        long creation_time = resultSet.getLong("creation_time");
+                        MutableContextSet contextSet = MutableContextSet.create();
+                        if (contextKey != null && contextValue != null) {
+                            contextSet.add(contextKey, contextValue);
+                        }
+                        boolean isRevoked = resultSet.getBoolean("revoked");
+                        NodeLog nodeLog = new NodeLog(uuid_user, name_user, name_operator, node, expiry, reason, contextSet, creation_time, isRevoked);
+                        nodeLog.setId(id);
+                        nodesLogs.put(id, nodeLog);
+                    }
+                    Bukkit.getScheduler().runTask(plugin, () -> callBack.accept(nodesLogs));
+                }catch (SQLException e){
+                    e.printStackTrace();
+                }
+            }
+        }.runTaskAsynchronously(plugin);
+    }
+
     //QueryType:
     //1 : Normal - With "revoked"
     //2 : v1.1 - Without "revoked"

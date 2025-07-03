@@ -225,7 +225,6 @@ public class UserDataManager {
             if(nodeType == NodeType.RANK) {
                 node = InheritanceNode.builder(modifyData.getRank())
                         .context(contextSet)
-                        .withMetadata(OtherUtils.getMetadataKey(), GRANT_ID_VALUE)
                         .build();
             }else{
                 node = PermissionNode.builder(modifyData.getPermission())

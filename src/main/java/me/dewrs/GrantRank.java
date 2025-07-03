@@ -3,6 +3,7 @@ package me.dewrs;
 import me.dewrs.bstats.Metrics;
 import me.dewrs.commands.GrantAdminCommand;
 import me.dewrs.commands.GrantCommand;
+import me.dewrs.commands.ViewGrantsCommand;
 import me.dewrs.config.*;
 import me.dewrs.listeners.ChatListener;
 import me.dewrs.listeners.InventoryListener;
@@ -60,6 +61,7 @@ public class GrantRank extends JavaPlugin {
 
     private void regCommands(){
         this.getCommand("grant").setExecutor(new GrantCommand(this));
+        this.getCommand("grants").setExecutor(new ViewGrantsCommand(this));
         this.getCommand("grantadmin").setExecutor(new GrantAdminCommand(this));
     }
 

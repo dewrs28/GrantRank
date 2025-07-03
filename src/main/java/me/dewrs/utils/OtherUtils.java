@@ -9,7 +9,6 @@ import me.dewrs.logger.LogSender;
 import me.dewrs.model.CustomInventory;
 import me.dewrs.model.CustomItem;
 import me.dewrs.model.ModifyData;
-import net.luckperms.api.node.metadata.NodeMetadataKey;
 import org.bukkit.Sound;
 import org.bukkit.entity.Player;
 
@@ -101,6 +100,7 @@ public class OtherUtils {
             case BACK: {
                 return inv.equals("grants.yml") || inv.equals("nodes-logs.yml");
             }
+            case VIEW_GRANTS:
             case ADD_PERMISSION: {
                 return inv.equals("grants.yml");
             }
@@ -168,9 +168,5 @@ public class OtherUtils {
         } catch (NoSuchMethodException | InvocationTargetException | IllegalAccessException | ClassNotFoundException e) {
             throw new RuntimeException(e);
         }
-    }
-
-    public static NodeMetadataKey<String> getMetadataKey(){
-        return NodeMetadataKey.of("grant-id", String.class);
     }
 }

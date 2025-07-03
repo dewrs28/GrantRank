@@ -77,12 +77,37 @@ public class ActionInventoryManager {
                 manageConfirmRevoke(inventoryPlayer, player);
                 break;
             }
+            case VIEW_GRANTS: {
+                manageViewGrants(inventoryPlayer, player);
+                break;
+            }
             case CANCEL_REVOKE: {
                 player.closeInventory();
                 break;
             }
             default: break;
         }
+    }
+
+    private void manageViewGrants(InventoryPlayer inventoryPlayer, Player player){
+        if(!PermissionUtils.canViewUserLogs(player)){
+            player.sendMessage(GrantRank.prefix+MessageUtils.getColoredMessage(plugin.getMessagesManager().getNoPermission()));
+            player.closeInventory();
+            OtherUtils.playSound(player,10, 2, SoundType.NO_PERM, plugin.getConfigManager());
+            return;
+        }
+        InventoryManager inventoryManager = plugin.getInventoryManager();
+        CustomInventory customInventory = plugin.getInventoryManager().getCustomInventory("nodes-logs.yml");
+        inventoryManager.setupUserNodeLogPagination(inventoryPlayer, (customInventory.getRows() - 2) * 9, () -> {
+            player.sendMessage(GrantRank.prefix+MessageUtils.getColoredMessage(plugin.getMessagesManager().getLoadingUserLogs()
+                    .replaceAll("%player%", inventoryPlayer.getTargetName())));
+            inventoryManager.createInventory(customInventory, inventoryPlayer, inv -> {
+                player.sendMessage(GrantRank.prefix+ MessageUtils.getColoredMessage(plugin.getMessagesManager().getGlobalLogsGuiOpen()));
+                player.openInventory(inv);
+                inventoryManager.setInventoryPlayer(inventoryPlayer, customInventory);
+                OtherUtils.playSound(player,10, 2, SoundType.OPEN_INV, plugin.getConfigManager());
+            });
+        });
     }
 
     private void manageConfirmRevoke(InventoryPlayer inventoryPlayer, Player player){
