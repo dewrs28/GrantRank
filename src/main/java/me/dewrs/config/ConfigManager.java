@@ -13,7 +13,6 @@ import java.util.List;
 import java.util.Objects;
 
 public class ConfigManager {
-    private GrantRank plugin;
     private CustomConfig customConfig;
     private GrantMenuType menuType;
     private CustomItem itemLpGrantsMenu;
@@ -33,7 +32,6 @@ public class ConfigManager {
     private boolean isEnabledSoundFinishGrant;
 
     public ConfigManager(GrantRank plugin){
-        this.plugin = plugin;
         customConfig = new CustomConfig("config.yml", null, plugin);
         customConfig.registerConfig();
         customConfig.updateConfig();

@@ -51,20 +51,18 @@ public class GrantAdminCommand implements CommandExecutor, TabCompleter {
     }
 
     private void reloadCommand(CommandSender sender){
-        if(sender instanceof Player) {
-            if (!PermissionUtils.isGrantRankAdmin((Player) sender)) {
-                sender.sendMessage(GrantRank.prefix + MessageUtils.getColoredMessage(plugin.getMessagesManager().getNoPermission()));
-                OtherUtils.playSound((Player) sender,10, 2, SoundType.NO_PERM, plugin.getConfigManager());
-                return;
-            }
+        if(sender instanceof Player && !PermissionUtils.isGrantRankAdmin((Player) sender)) {
+            sender.sendMessage(GrantRank.PREFIX + MessageUtils.getColoredMessage(plugin.getMessagesManager().getNoPermission()));
+            OtherUtils.playSound((Player) sender, 10, 2, SoundType.NO_PERM, plugin.getConfigManager());
+            return;
         }
         plugin.reloadPlugin();
-        sender.sendMessage(GrantRank.prefix+MessageUtils.getColoredMessage(plugin.getMessagesManager().getReload()));
+        sender.sendMessage(GrantRank.PREFIX+MessageUtils.getColoredMessage(plugin.getMessagesManager().getReload()));
     }
 
     private void logsCommand(Player player){
         if(!PermissionUtils.canViewGlobalLogs(player)){
-            player.sendMessage(GrantRank.prefix+MessageUtils.getColoredMessage(plugin.getMessagesManager().getNoPermission()));
+            player.sendMessage(GrantRank.PREFIX+MessageUtils.getColoredMessage(plugin.getMessagesManager().getNoPermission()));
             OtherUtils.playSound(player,10, 2, SoundType.NO_PERM, plugin.getConfigManager());
             return;
         }
@@ -72,9 +70,9 @@ public class GrantAdminCommand implements CommandExecutor, TabCompleter {
         CustomInventory customInventory = plugin.getInventoryManager().getCustomInventory("nodes-logs.yml");
         InventoryPlayer inventoryPlayer = new InventoryPlayer(player.getName(), customInventory, new ModifyData());
         inventoryManager.setupNodeLogPagination(inventoryPlayer, (customInventory.getRows() - 2) * 9, () -> {
-            player.sendMessage(GrantRank.prefix+MessageUtils.getColoredMessage(plugin.getMessagesManager().getLoadingLogs()));
+            player.sendMessage(GrantRank.PREFIX+MessageUtils.getColoredMessage(plugin.getMessagesManager().getLoadingLogs()));
             inventoryManager.createInventory(customInventory, inventoryPlayer, inv -> {
-                player.sendMessage(GrantRank.prefix+ MessageUtils.getColoredMessage(plugin.getMessagesManager().getGlobalLogsGuiOpen()));
+                player.sendMessage(GrantRank.PREFIX+ MessageUtils.getColoredMessage(plugin.getMessagesManager().getGlobalLogsGuiOpen()));
                 player.openInventory(inv);
                 inventoryManager.setInventoryPlayer(inventoryPlayer, customInventory);
                 OtherUtils.playSound(player,10, 2, SoundType.OPEN_INV, plugin.getConfigManager());
@@ -84,7 +82,7 @@ public class GrantAdminCommand implements CommandExecutor, TabCompleter {
 
     private void help(CommandSender sender){
         if(!PermissionUtils.isGrantRankAdmin((Player) sender)){
-            sender.sendMessage(GrantRank.prefix+MessageUtils.getColoredMessage(plugin.getMessagesManager().getNoPermission()));
+            sender.sendMessage(GrantRank.PREFIX+MessageUtils.getColoredMessage(plugin.getMessagesManager().getNoPermission()));
             return;
         }
         for(String m : plugin.getMessagesManager().getHelpAdmin()){

@@ -23,25 +23,25 @@ public class ViewGrantsCommand implements CommandExecutor {
     @Override
     public boolean onCommand(CommandSender sender, Command command, String s, String[] args) {
         if(!(sender instanceof Player)){
-            sender.sendMessage(GrantRank.prefix+ MessageUtils.getColoredMessage("&cOnly players can do this!"));
+            sender.sendMessage(GrantRank.PREFIX+ MessageUtils.getColoredMessage("&cOnly players can do this!"));
             return true;
         }
         Player player = (Player) sender;
         if(!PermissionUtils.canViewUserLogs(player)){
-            player.sendMessage(GrantRank.prefix+MessageUtils.getColoredMessage(plugin.getMessagesManager().getNoPermission()));
+            player.sendMessage(GrantRank.PREFIX+MessageUtils.getColoredMessage(plugin.getMessagesManager().getNoPermission()));
             OtherUtils.playSound(player, 10, 2, SoundType.NO_PERM, plugin.getConfigManager());
             return true;
         }
 
         if(args.length == 0){
-            player.sendMessage(GrantRank.prefix+MessageUtils.getColoredMessage(plugin.getMessagesManager().getNoArguments()
-                    .replaceAll("%c%", "/grants (player)")));
+            player.sendMessage(GrantRank.PREFIX+MessageUtils.getColoredMessage(plugin.getMessagesManager().getNoArguments()
+                    .replace("%c%", "/grants (player)")));
             return true;
         }
 
         String nameTarget = args[0];
         if(nameTarget.length() > 16){
-            player.sendMessage(GrantRank.prefix+MessageUtils.getColoredMessage(plugin.getMessagesManager().getNicknameTooLong()));
+            player.sendMessage(GrantRank.PREFIX+MessageUtils.getColoredMessage(plugin.getMessagesManager().getNicknameTooLong()));
             return true;
         }
         InventoryManager inventoryManager = plugin.getInventoryManager();
@@ -50,17 +50,17 @@ public class ViewGrantsCommand implements CommandExecutor {
         userDataManager.fetchStoredUUID(nameTarget)
                 .thenAccept(uuid -> {
                     if (uuid == null) {
-                        player.sendMessage(GrantRank.prefix + MessageUtils.getColoredMessage(plugin.getMessagesManager().getNoPlayer()));
+                        player.sendMessage(GrantRank.PREFIX + MessageUtils.getColoredMessage(plugin.getMessagesManager().getNoPlayer()));
                         return;
                     }
                     InventoryPlayer inventoryPlayer = new InventoryPlayer(player.getName(), customInventory, uuid, new ModifyData());
                     userDataManager.fetchStoredName(inventoryPlayer.getTargetUuid()).thenAccept(name -> {
                         inventoryPlayer.setTargetName(name);
                         inventoryManager.setupUserNodeLogPagination(inventoryPlayer, (customInventory.getRows() - 2) * 9, () -> {
-                            player.sendMessage(GrantRank.prefix+MessageUtils.getColoredMessage(plugin.getMessagesManager().getLoadingUserLogs()
-                                    .replaceAll("%player%", name)));
+                            player.sendMessage(GrantRank.PREFIX+MessageUtils.getColoredMessage(plugin.getMessagesManager().getLoadingUserLogs()
+                                    .replace("%player%", name)));
                             inventoryManager.createInventory(customInventory, inventoryPlayer, inv -> {
-                                player.sendMessage(GrantRank.prefix+ MessageUtils.getColoredMessage(plugin.getMessagesManager().getGlobalLogsGuiOpen()));
+                                player.sendMessage(GrantRank.PREFIX+ MessageUtils.getColoredMessage(plugin.getMessagesManager().getGlobalLogsGuiOpen()));
                                 player.openInventory(inv);
                                 inventoryManager.setInventoryPlayer(inventoryPlayer, customInventory);
                                 OtherUtils.playSound(player,10, 2, SoundType.OPEN_INV, plugin.getConfigManager());

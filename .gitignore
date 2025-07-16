@@ -1,4 +1,5 @@
 target/
+sonar-project.properties
 .idea/
 dependency-reduced-pom.xml
 compile.bat

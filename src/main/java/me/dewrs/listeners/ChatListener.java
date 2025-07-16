@@ -44,7 +44,7 @@ public class ChatListener implements Listener {
         switch (chatModuleType){
             case TIME: {
                 if(!TimeUtils.isValidTime(input)){
-                    player.sendMessage(GrantRank.prefix+ MessageUtils.getColoredMessage(plugin.getMessagesManager().getInvalidTime()));
+                    player.sendMessage(GrantRank.PREFIX+ MessageUtils.getColoredMessage(plugin.getMessagesManager().getInvalidTime()));
                     runSyncLeftChat(inventoryPlayer, player, false);
                     return;
                 }
@@ -62,7 +62,7 @@ public class ChatListener implements Listener {
             }
             case CONTEXT: {
                 if(!OtherUtils.isValidContext(input)){
-                    player.sendMessage(GrantRank.prefix+MessageUtils.getColoredMessage(plugin.getMessagesManager().getInvalidContext()));
+                    player.sendMessage(GrantRank.PREFIX+MessageUtils.getColoredMessage(plugin.getMessagesManager().getInvalidContext()));
                     runSyncLeftChat(inventoryPlayer, player, false);
                     return;
                 }
@@ -87,7 +87,7 @@ public class ChatListener implements Listener {
             }
             case PERMISSION: {
                 if(!OtherUtils.isValidPermission(input)){
-                    player.sendMessage(GrantRank.prefix+MessageUtils.getColoredMessage(plugin.getMessagesManager().getInvalidPermission()));
+                    player.sendMessage(GrantRank.PREFIX+MessageUtils.getColoredMessage(plugin.getMessagesManager().getInvalidPermission()));
                     runSyncLeftChat(inventoryPlayer, player, false);
                     return;
                 }

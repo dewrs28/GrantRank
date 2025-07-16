@@ -26,25 +26,25 @@ public class GrantCommand implements CommandExecutor {
     @Override
     public boolean onCommand(CommandSender sender, Command command, String s, String[] args) {
         if(!(sender instanceof Player)){
-            sender.sendMessage(GrantRank.prefix+MessageUtils.getColoredMessage("&cOnly players can do this!"));
+            sender.sendMessage(GrantRank.PREFIX+MessageUtils.getColoredMessage("&cOnly players can do this!"));
             return true;
         }
         Player player = (Player) sender;
         if(!PermissionUtils.canUseGrants(player)){
-            player.sendMessage(GrantRank.prefix+MessageUtils.getColoredMessage(plugin.getMessagesManager().getNoPermission()));
+            player.sendMessage(GrantRank.PREFIX+MessageUtils.getColoredMessage(plugin.getMessagesManager().getNoPermission()));
             OtherUtils.playSound(player, 10, 2, SoundType.NO_PERM, plugin.getConfigManager());
             return true;
         }
 
         if(args.length == 0){
-            player.sendMessage(GrantRank.prefix+MessageUtils.getColoredMessage(plugin.getMessagesManager().getNoArguments()
-                    .replaceAll("%c%", "/grant (player)")));
+            player.sendMessage(GrantRank.PREFIX+MessageUtils.getColoredMessage(plugin.getMessagesManager().getNoArguments()
+                    .replace("%c%", "/grant (player)")));
             return true;
         }
 
         String nameTarget = args[0];
         if(nameTarget.length() > 16){
-            player.sendMessage(GrantRank.prefix+MessageUtils.getColoredMessage(plugin.getMessagesManager().getNicknameTooLong()));
+            player.sendMessage(GrantRank.PREFIX+MessageUtils.getColoredMessage(plugin.getMessagesManager().getNicknameTooLong()));
             return true;
         }
         UserDataManager userDataManager = plugin.getUserDataManager();
@@ -52,7 +52,7 @@ public class GrantCommand implements CommandExecutor {
         userDataManager.fetchStoredUUID(nameTarget)
                 .thenAccept(uuid -> {
                     if (uuid == null) {
-                        player.sendMessage(GrantRank.prefix + MessageUtils.getColoredMessage(plugin.getMessagesManager().getNoPlayer()));
+                        player.sendMessage(GrantRank.PREFIX + MessageUtils.getColoredMessage(plugin.getMessagesManager().getNoPlayer()));
                         return;
                     }
                     InventoryPlayer inventoryPlayer = new InventoryPlayer(player.getName(), customInventory, uuid, new ModifyData());
@@ -75,8 +75,8 @@ public class GrantCommand implements CommandExecutor {
         inventoryManager.createInventory(customInventory, inventoryPlayer, inv -> {
             player.openInventory(inv);
             inventoryManager.setInventoryPlayer(inventoryPlayer, customInventory);
-            player.sendMessage(GrantRank.prefix+MessageUtils.getColoredMessage(plugin.getMessagesManager().getGrantsGuiOpen()
-                    .replaceAll("%player%", inventoryPlayer.getTargetName())));
+            player.sendMessage(GrantRank.PREFIX+MessageUtils.getColoredMessage(plugin.getMessagesManager().getGrantsGuiOpen()
+                    .replace("%player%", inventoryPlayer.getTargetName())));
             OtherUtils.playSound(player,10, 2, SoundType.OPEN_INV, plugin.getConfigManager());
         });
     }

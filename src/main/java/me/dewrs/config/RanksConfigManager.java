@@ -12,13 +12,11 @@ import java.util.HashMap;
 import java.util.Map;
 
 public class RanksConfigManager {
-    private GrantRank plugin;
     private CustomConfig customConfig;
     private Map<Integer, Map<String, CustomItem>> rankCustomItems;
     private CustomInventory parentInventory;
 
     public RanksConfigManager(GrantRank plugin){
-        this.plugin = plugin;
         customConfig = new CustomConfig("ranks.yml", null, plugin);
         customConfig.registerConfig();
         parentInventory = plugin.getInventoryManager().getCustomInventory("grants.yml");

@@ -91,7 +91,7 @@ public class ActionInventoryManager {
 
     private void manageViewGrants(InventoryPlayer inventoryPlayer, Player player){
         if(!PermissionUtils.canViewUserLogs(player)){
-            player.sendMessage(GrantRank.prefix+MessageUtils.getColoredMessage(plugin.getMessagesManager().getNoPermission()));
+            player.sendMessage(GrantRank.PREFIX+MessageUtils.getColoredMessage(plugin.getMessagesManager().getNoPermission()));
             player.closeInventory();
             OtherUtils.playSound(player,10, 2, SoundType.NO_PERM, plugin.getConfigManager());
             return;
@@ -99,10 +99,10 @@ public class ActionInventoryManager {
         InventoryManager inventoryManager = plugin.getInventoryManager();
         CustomInventory customInventory = plugin.getInventoryManager().getCustomInventory("nodes-logs.yml");
         inventoryManager.setupUserNodeLogPagination(inventoryPlayer, (customInventory.getRows() - 2) * 9, () -> {
-            player.sendMessage(GrantRank.prefix+MessageUtils.getColoredMessage(plugin.getMessagesManager().getLoadingUserLogs()
-                    .replaceAll("%player%", inventoryPlayer.getTargetName())));
+            player.sendMessage(GrantRank.PREFIX+MessageUtils.getColoredMessage(plugin.getMessagesManager().getLoadingUserLogs()
+                    .replace("%player%", inventoryPlayer.getTargetName())));
             inventoryManager.createInventory(customInventory, inventoryPlayer, inv -> {
-                player.sendMessage(GrantRank.prefix+ MessageUtils.getColoredMessage(plugin.getMessagesManager().getGlobalLogsGuiOpen()));
+                player.sendMessage(GrantRank.PREFIX+ MessageUtils.getColoredMessage(plugin.getMessagesManager().getGlobalLogsGuiOpen()));
                 player.openInventory(inv);
                 inventoryManager.setInventoryPlayer(inventoryPlayer, customInventory);
                 OtherUtils.playSound(player,10, 2, SoundType.OPEN_INV, plugin.getConfigManager());
@@ -125,14 +125,14 @@ public class ActionInventoryManager {
         if(nodeType == NodeType.RANK){
             String[] split = nodeLog.getNode().split("\\.");
             if(!PermissionUtils.canRevokeRank(player, split[1])){
-                player.sendMessage(GrantRank.prefix+MessageUtils.getColoredMessage(plugin.getMessagesManager().getNoPermission()));
+                player.sendMessage(GrantRank.PREFIX+MessageUtils.getColoredMessage(plugin.getMessagesManager().getNoPermission()));
                 player.closeInventory();
                 OtherUtils.playSound(player,10, 2, SoundType.NO_PERM, plugin.getConfigManager());
                 return;
             }
         }else{
             if(!PermissionUtils.canRevokePermission(player)){
-                player.sendMessage(GrantRank.prefix+MessageUtils.getColoredMessage(plugin.getMessagesManager().getNoPermission()));
+                player.sendMessage(GrantRank.PREFIX+MessageUtils.getColoredMessage(plugin.getMessagesManager().getNoPermission()));
                 player.closeInventory();
                 OtherUtils.playSound(player,10, 2, SoundType.NO_PERM, plugin.getConfigManager());
                 return;
@@ -217,7 +217,7 @@ public class ActionInventoryManager {
 
     private void manageAddPermission(InventoryPlayer inventoryPlayer, Player player){
         if(!PermissionUtils.canGivePermission(player)){
-            player.sendMessage(GrantRank.prefix+MessageUtils.getColoredMessage(plugin.getMessagesManager().getNoPermission()));
+            player.sendMessage(GrantRank.PREFIX+MessageUtils.getColoredMessage(plugin.getMessagesManager().getNoPermission()));
             player.closeInventory();
             OtherUtils.playSound(player,10, 2, SoundType.NO_PERM, plugin.getConfigManager());
             return;
@@ -230,7 +230,7 @@ public class ActionInventoryManager {
     private void manageGrant(InventoryPlayer inventoryPlayer, Player player, CustomItem customItem){
         Group rank = customItem.getGrantToGive();
         if(!PermissionUtils.canGrantRank(player, rank.getName())){
-            player.sendMessage(GrantRank.prefix+MessageUtils.getColoredMessage(plugin.getMessagesManager().getNoPermission()));
+            player.sendMessage(GrantRank.PREFIX+MessageUtils.getColoredMessage(plugin.getMessagesManager().getNoPermission()));
             player.closeInventory();
             OtherUtils.playSound(player,10, 2, SoundType.NO_PERM, plugin.getConfigManager());
             return;
@@ -272,7 +272,7 @@ public class ActionInventoryManager {
         }
         if (!TimeUtils.isValidTime(input)) {
             player.closeInventory();
-            player.sendMessage(GrantRank.prefix + MessageUtils.getColoredMessage(plugin.getMessagesManager().getInvalidTime()));
+            player.sendMessage(GrantRank.PREFIX + MessageUtils.getColoredMessage(plugin.getMessagesManager().getInvalidTime()));
             return;
         }
 

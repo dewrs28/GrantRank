@@ -20,9 +20,9 @@ import org.bukkit.plugin.PluginManager;
 import org.bukkit.plugin.java.JavaPlugin;
 
 public class GrantRank extends JavaPlugin {
-    public static String prefix = MessageUtils.getColoredMessage("&8[&dGrants&8]&r ");
+    public static final String PREFIX = MessageUtils.getColoredMessage("&8[&dGrants&8]&r ");
     PluginDescriptionFile pluginDescriptionFile = getDescription();
-    public String version = pluginDescriptionFile.getVersion();
+    public final String version = pluginDescriptionFile.getVersion();
     private ConfigManager configManager;
     private MessagesManager messagesManager;
     private InventoryManager inventoryManager;
@@ -36,6 +36,7 @@ public class GrantRank extends JavaPlugin {
     private ConnectionFactory connectionFactory;
     private UpdateCheckerManager updateCheckerManager;
 
+    @Override
     public void onEnable(){
         configManager = new ConfigManager(this);
         messagesManager = new MessagesManager(this);
@@ -53,6 +54,7 @@ public class GrantRank extends JavaPlugin {
         LogSender.sendLogMessage("&ahas been enabled");
     }
 
+    @Override
     public void onDisable(){
         Bukkit.getScheduler().cancelTasks(this);
         if(connectionFactory != null) connectionFactory.closeConnection();

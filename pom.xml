@@ -12,6 +12,10 @@
         <maven.compiler.source>21</maven.compiler.source>
         <maven.compiler.target>21</maven.compiler.target>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+        <sonar.exclusions>
+            src/main/java/me/dewrs/bstats/**,
+            src/main/java/me/dewrs/libs/**
+        </sonar.exclusions>
     </properties>
     <repositories>
         <repository>

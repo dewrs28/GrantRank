@@ -34,8 +34,8 @@ public class PlayerListener implements Listener {
         Player player = event.getPlayer();
         String latestVersion = plugin.getUpdateCheckerManager().getLatestVersion();
         if((PermissionUtils.isGrantRankAdmin(player) || player.isOp()) && !plugin.version.equals(latestVersion)){
-            player.sendMessage(GrantRank.prefix+MessageUtils.getColoredMessage("&cThere is a new version of the plugin &8(&e"+latestVersion+"&8)"));
-            player.sendMessage(GrantRank.prefix+MessageUtils.getColoredMessage("&cYou can download it at: &ehttps://spigotmc.org/resources/125879"));
+            player.sendMessage(GrantRank.PREFIX+MessageUtils.getColoredMessage("&cThere is a new version of the plugin &8(&e"+latestVersion+"&8)"));
+            player.sendMessage(GrantRank.PREFIX+MessageUtils.getColoredMessage("&cYou can download it at: &ehttps://spigotmc.org/resources/125879"));
         }
     }
 }

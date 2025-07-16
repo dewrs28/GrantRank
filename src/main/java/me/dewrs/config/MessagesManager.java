@@ -6,7 +6,6 @@ import org.bukkit.configuration.file.FileConfiguration;
 import java.util.List;
 
 public class MessagesManager {
-    private GrantRank plugin;
     private CustomConfig customConfig;
     private String noArguments;
     private String noPlayer;
@@ -41,7 +40,6 @@ public class MessagesManager {
     private String loadingUserLogs;
 
     public MessagesManager(GrantRank plugin){
-        this.plugin = plugin;
         customConfig = new CustomConfig("messages.yml", null, plugin);
         customConfig.registerConfig();
         customConfig.updateConfig();

@@ -24,12 +24,12 @@ public class HookManager {
     public void loadHooks(){
         RegisteredServiceProvider<LuckPerms> provider = Bukkit.getServicesManager().getRegistration(LuckPerms.class);
         if(provider == null){
-            Bukkit.getConsoleSender().sendMessage(GrantRank.prefix + MessageUtils.getColoredMessage("&aLuckPerms has produced a error with GrantRank!"));
+            Bukkit.getConsoleSender().sendMessage(GrantRank.PREFIX + MessageUtils.getColoredMessage("&aLuckPerms has produced a error with GrantRank!"));
             return;
         }
         plugin.setLuckPermsApi(provider.getProvider());
         hooksEnabled.add(HookType.LUCKPERMS);
-        Bukkit.getConsoleSender().sendMessage(GrantRank.prefix + MessageUtils.getColoredMessage("&aLuckPerms has been connected successful!"));
+        Bukkit.getConsoleSender().sendMessage(GrantRank.PREFIX + MessageUtils.getColoredMessage("&aLuckPerms has been connected successful!"));
     }
 
     public Map<Group, Integer> sortWeightGroupsLuckPerms(){

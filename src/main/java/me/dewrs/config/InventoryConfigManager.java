@@ -16,6 +16,7 @@ import java.io.File;
 import java.util.*;
 
 public class InventoryConfigManager {
+    private static final String ITEMS_PATH = "items";
     private GrantRank plugin;
     private ArrayList<CustomConfig> configFiles;
     private String folderName;
@@ -65,6 +66,10 @@ public class InventoryConfigManager {
         return true;
     }
 
+    private boolean isValidInventory(String key, FileConfiguration config){
+        return config.contains(ITEMS_PATH +"."+ key + ".slot") && config.contains(ITEMS_PATH +"."+ key + ".material");
+    }
+
     private void loadInventories(){
         ArrayList<CustomInventory> inventories = new ArrayList<>();
         for(CustomConfig customConfig : configFiles) {
@@ -73,57 +78,56 @@ public class InventoryConfigManager {
                 String path = customConfig.getPath();
                 String title = config.getString("title");
                 int rows = config.getInt("rows");
-                //Verificar si son validos los rows
-                if(!hasValidRows(path, rows)){
+                if (!hasValidRows(path, rows)) {
                     LogSender.sendLogMessage(LogMessage.INVENTORY_INVALID_ROWS.format(path));
                     continue;
                 }
                 ArrayList<CustomItem> customItems = new ArrayList<>();
-                //Cargar los items implementados por el usuario
-                if (config.getConfigurationSection("items") != null) {
-                    for (String key : config.getConfigurationSection("items").getKeys(false)) {
-                        if (config.contains("items." + key + ".slot") && config.contains("items." + key + ".material")) {
-                            int slot = config.getInt("items." + key + ".slot");
-                            if(!OtherUtils.isValidSlot(slot, rows, customItems)) continue;
-
-                            Material material;
-                            try {
-                                material = Material.valueOf(config.getString("items." + key + ".material"));
-                            }catch (IllegalArgumentException ex){
-                                continue;
-                            }
-
-                            String name = config.contains("items." + key + ".name") ? config.getString("items." + key + ".name") : "";
-                            List<String> lore = config.contains("items." + key + ".lore") ? config.getStringList("items." + key + ".lore") : new ArrayList<>();
-
-                            CustomActionType customActionType = CustomActionType.DECORATION;
-                            if (config.contains("items." + key + ".action")) {
-                                try {
-                                    customActionType = CustomActionType.valueOf(Objects.requireNonNull(config.getString("items." + key + ".action")).toUpperCase());
-                                }catch (IllegalArgumentException ignored){
-                                }
-                            }
-                            if(!OtherUtils.isValidCustomAction(customActionType, path)) customActionType = CustomActionType.DECORATION;
-
-                            CustomItem customItem = new CustomItem(name, 1, material, (ArrayList<String>) lore, slot, customActionType);
-
-                            if(config.contains("items."+key+".inventory") && customActionType.equals(CustomActionType.OPEN_INVENTORY)){
-                                String openInv = config.getString("items." + key + ".inventory");
-                                if(OtherUtils.isValidOpenInventory(Objects.requireNonNull(openInv), defaultInventories)) {
-                                    customItem.setInventoryToOpen(openInv);
-                                }else{
-                                    customItem.setCustomActionType(CustomActionType.DECORATION);
-                                }
-                            }
-                            boolean containsValue = (customActionType.equals(CustomActionType.SET_TIME));
-                            if(containsValue){
-                                if(config.contains("items."+key+".value")){
-                                    customItem.setCacheFormat(config.getString("items." + key + ".value"));
-                                }
-                            }
-
-                            customItems.add(customItem);
+                if (config.getConfigurationSection(ITEMS_PATH) != null) {
+                    for (String key : config.getConfigurationSection(ITEMS_PATH).getKeys(false)) {
+                        if (!isValidInventory(key, config)) {
+                            continue;
                         }
+
+                        int slot = config.getInt(ITEMS_PATH +"."+ key + ".slot");
+                        if (!OtherUtils.isValidSlot(slot, rows, customItems)) continue;
+
+                        Material material;
+                        try {
+                            material = Material.valueOf(config.getString(ITEMS_PATH +"."+ key + ".material"));
+                        } catch (IllegalArgumentException ex) {
+                            continue;
+                        }
+
+                        String name = config.contains(ITEMS_PATH +"."+ key + ".name") ? config.getString(ITEMS_PATH +"."+ key + ".name") : "";
+                        List<String> lore = config.contains(ITEMS_PATH +"."+ key + ".lore") ? config.getStringList(ITEMS_PATH +"."+ key + ".lore") : new ArrayList<>();
+
+                        CustomActionType customActionType = CustomActionType.DECORATION;
+                        if (config.contains(ITEMS_PATH +"."+ key + ".action")) {
+                            try {
+                                customActionType = CustomActionType.valueOf(Objects.requireNonNull(config.getString(ITEMS_PATH +"."+ key + ".action")).toUpperCase());
+                            } catch (IllegalArgumentException ignored) {
+                            }
+                        }
+                        if (!OtherUtils.isValidCustomAction(customActionType, path))
+                            customActionType = CustomActionType.DECORATION;
+
+                        CustomItem customItem = new CustomItem(name, 1, material, (ArrayList<String>) lore, slot, customActionType);
+
+                        if (config.contains(ITEMS_PATH +"."+ key + ".inventory") && customActionType.equals(CustomActionType.OPEN_INVENTORY)) {
+                            String openInv = config.getString(ITEMS_PATH +"."+ key + ".inventory");
+                            if (OtherUtils.isValidOpenInventory(Objects.requireNonNull(openInv), defaultInventories)) {
+                                customItem.setInventoryToOpen(openInv);
+                            } else {
+                                customItem.setCustomActionType(CustomActionType.DECORATION);
+                            }
+                        }
+                        boolean containsValue = (customActionType.equals(CustomActionType.SET_TIME));
+                        if (containsValue && config.contains(ITEMS_PATH +"."+ key + ".value")) {
+                            customItem.setCacheFormat(config.getString(ITEMS_PATH + "." + key + ".value"));
+                        }
+
+                        customItems.add(customItem);
                     }
                 }
                 CustomInventory inventory = new CustomInventory(path, title, rows, customItems);

@@ -47,8 +47,9 @@ public class TimeUtils {
             case "ye":
             case "year":
                 return Duration.ofDays(amount * 365);
+            default:
+                return null;
         }
-        return null;
     }
 
     public static String getTimeFromMilis(long milis){

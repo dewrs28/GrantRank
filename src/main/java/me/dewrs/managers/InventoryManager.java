@@ -40,7 +40,7 @@ public class InventoryManager {
     @SuppressWarnings("All")
     public void createInventory(CustomInventory customInventory, InventoryPlayer inventoryPlayer, Consumer<Inventory> callBack) {
         Inventory inv = Bukkit.createInventory(null, 9 * customInventory.getRows(), MessageUtils.getColoredMessage(customInventory.getTitle()
-                .replaceAll("%player%", inventoryPlayer.getTargetName())));
+                .replace("%player%", inventoryPlayer.getTargetName())));
         String path = customInventory.getInv();
         if(path.startsWith("grants.yml")){
             if (plugin.getConfigManager().getMenuType().equals(GrantMenuType.LUCKPERMS)){
@@ -151,7 +151,6 @@ public class InventoryManager {
 
     @SuppressWarnings("All")
     private ItemStack replaceItemVariables(ItemStack itemStack, String path, InventoryPlayer inventoryPlayer){
-        ActionInventoryManager actionInventoryManager = plugin.getActionInventoryManager();
         HookManager hookManager = plugin.getHookManager();
         ModifyData modifyData = inventoryPlayer.getModifyData();
         switch (path) {
@@ -171,6 +170,8 @@ public class InventoryManager {
                 itemStack = ItemUtils.getItemStackReplaceMultiLine(itemStack, "%contexts%", modifyData.getContexts());
                 break;
             }
+            default:
+                return itemStack;
         }
         return itemStack;
     }

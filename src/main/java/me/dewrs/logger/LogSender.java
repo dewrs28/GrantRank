@@ -6,6 +6,6 @@ import org.bukkit.Bukkit;
 
 public class LogSender {
     public static void sendLogMessage(String message){
-        Bukkit.getConsoleSender().sendMessage(GrantRank.prefix+MessageUtils.getColoredMessage(message));
+        Bukkit.getConsoleSender().sendMessage(GrantRank.PREFIX+MessageUtils.getColoredMessage(message));
     }
 }

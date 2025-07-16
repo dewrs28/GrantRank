@@ -161,39 +161,39 @@ public class UserDataManager {
         if(nodeType == NodeType.RANK){
             String[] splitNode = nodeLog.getNode().split("\\.");
             message = plugin.getMessagesManager().getGrantRevoke()
-                    .replaceAll("%player%", nameUser)
-                    .replaceAll("%rank%", splitNode[1])
-                    .replaceAll("%id%", String.valueOf(nodeLog.getId()));
+                    .replace("%player%", nameUser)
+                    .replace("%rank%", splitNode[1])
+                    .replace("%id%", String.valueOf(nodeLog.getId()));
         }else{
             message = plugin.getMessagesManager().getPermissionRevoke()
-                    .replaceAll("%player%", nameUser)
-                    .replaceAll("%permission%", nodeLog.getNode())
-                    .replaceAll("%id%", String.valueOf(nodeLog.getId()));
+                    .replace("%player%", nameUser)
+                    .replace("%permission%", nodeLog.getNode())
+                    .replace("%id%", String.valueOf(nodeLog.getId()));
         }
 
         String messageNotify;
         if(nodeType == NodeType.RANK){
             String[] splitNode = nodeLog.getNode().split("\\.");
             messageNotify = plugin.getMessagesManager().getGrantRevokeNotify()
-                    .replaceAll("%player%", nameUser)
-                    .replaceAll("%rank%", splitNode[1])
-                    .replaceAll("%operator%", nameOperator)
-                    .replaceAll("%id%", String.valueOf(nodeLog.getId()));
+                    .replace("%player%", nameUser)
+                    .replace("%rank%", splitNode[1])
+                    .replace("%operator%", nameOperator)
+                    .replace("%id%", String.valueOf(nodeLog.getId()));
         }else{
             messageNotify = plugin.getMessagesManager().getPermissionRevokeNotify()
-                    .replaceAll("%player%", nameUser)
-                    .replaceAll("%permission%", nodeLog.getNode())
-                    .replaceAll("%operator%", nameOperator)
-                    .replaceAll("%id%", String.valueOf(nodeLog.getId()));
+                    .replace("%player%", nameUser)
+                    .replace("%permission%", nodeLog.getNode())
+                    .replace("%operator%", nameOperator)
+                    .replace("%id%", String.valueOf(nodeLog.getId()));
         }
 
-        player.sendMessage(GrantRank.prefix+ MessageUtils.getColoredMessage(message));
+        player.sendMessage(GrantRank.PREFIX+ MessageUtils.getColoredMessage(message));
         OtherUtils.playSound(player,10, 2, SoundType.FINISH_GRANT, plugin.getConfigManager());
 
         LogSender.sendLogMessage(messageNotify);
         for(Player p : Bukkit.getOnlinePlayers()){
             if(PermissionUtils.canReceiveNotifies(p)){
-                p.sendMessage(GrantRank.prefix+MessageUtils.getColoredMessage(messageNotify));
+                p.sendMessage(GrantRank.PREFIX+MessageUtils.getColoredMessage(messageNotify));
                 OtherUtils.playSound(p,10, 2, SoundType.FINISH_GRANT, plugin.getConfigManager());
             }
         }
@@ -220,7 +220,6 @@ public class UserDataManager {
         }
 
         Node node;
-        String GRANT_ID_VALUE = UUID.randomUUID().toString();
         if(expiry == -1) {
             if(nodeType == NodeType.RANK) {
                 node = InheritanceNode.builder(modifyData.getRank())
@@ -277,54 +276,54 @@ public class UserDataManager {
         String messageNotify;
         if(nodeType == NodeType.RANK){
             messageNotify = plugin.getMessagesManager().getGrantSuccessNotify()
-                    .replaceAll("%player%", nameUser)
-                    .replaceAll("%contexts%", contextsMessage.toString())
-                    .replaceAll("%rank%", modifyData.getRank().getName())
-                    .replaceAll("%time%", timeString)
-                    .replaceAll("%operator%", nameOperator);
+                    .replace("%player%", nameUser)
+                    .replace("%contexts%", contextsMessage.toString())
+                    .replace("%rank%", modifyData.getRank().getName())
+                    .replace("%time%", timeString)
+                    .replace("%operator%", nameOperator);
         }else{
             messageNotify = plugin.getMessagesManager().getPermissionSuccessNotify()
-                    .replaceAll("%player%", nameUser)
-                    .replaceAll("%contexts%", contextsMessage.toString())
-                    .replaceAll("%permission%", modifyData.getPermission())
-                    .replaceAll("%time%", timeString)
-                    .replaceAll("%operator%", nameOperator);
+                    .replace("%player%", nameUser)
+                    .replace("%contexts%", contextsMessage.toString())
+                    .replace("%permission%", modifyData.getPermission())
+                    .replace("%time%", timeString)
+                    .replace("%operator%", nameOperator);
         }
         String message;
         if(timeString.equalsIgnoreCase("permanent")) {
             //Perm
             if(nodeType == NodeType.RANK) {
                 message = plugin.getMessagesManager().getGrantSuccessPerm()
-                        .replaceAll("%player%", nameUser)
-                        .replaceAll("%contexts%", contextsMessage.toString())
-                        .replaceAll("%rank%", modifyData.getRank().getName());
+                        .replace("%player%", nameUser)
+                        .replace("%contexts%", contextsMessage.toString())
+                        .replace("%rank%", modifyData.getRank().getName());
             }else{
                 message = plugin.getMessagesManager().getPermissionSuccessPerm()
-                        .replaceAll("%player%", nameUser)
-                        .replaceAll("%contexts%", contextsMessage.toString())
-                        .replaceAll("%permission%", modifyData.getPermission());
+                        .replace("%player%", nameUser)
+                        .replace("%contexts%", contextsMessage.toString())
+                        .replace("%permission%", modifyData.getPermission());
             }
         }else{
             //Temp
             if(nodeType == NodeType.RANK) {
                 message = plugin.getMessagesManager().getGrantSuccessTemp()
-                        .replaceAll("%player%", nameUser).replaceAll("%contexts%", contextsMessage.toString())
-                        .replaceAll("%time%", timeString)
-                        .replaceAll("%rank%", modifyData.getRank().getName());
+                        .replace("%player%", nameUser).replace("%contexts%", contextsMessage.toString())
+                        .replace("%time%", timeString)
+                        .replace("%rank%", modifyData.getRank().getName());
             }else{
                 message = plugin.getMessagesManager().getPermissionSuccessTemp()
-                        .replaceAll("%player%", nameUser).replaceAll("%contexts%", contextsMessage.toString())
-                        .replaceAll("%time%", timeString)
-                        .replaceAll("%permission%", modifyData.getPermission());
+                        .replace("%player%", nameUser).replace("%contexts%", contextsMessage.toString())
+                        .replace("%time%", timeString)
+                        .replace("%permission%", modifyData.getPermission());
             }
         }
-        player.sendMessage(GrantRank.prefix+ MessageUtils.getColoredMessage(message));
+        player.sendMessage(GrantRank.PREFIX+ MessageUtils.getColoredMessage(message));
         OtherUtils.playSound(player,10, 2, SoundType.FINISH_GRANT, plugin.getConfigManager());
 
         LogSender.sendLogMessage(messageNotify);
         for(Player p : Bukkit.getOnlinePlayers()){
             if(PermissionUtils.canReceiveNotifies(p)){
-                p.sendMessage(GrantRank.prefix+MessageUtils.getColoredMessage(messageNotify));
+                p.sendMessage(GrantRank.PREFIX+MessageUtils.getColoredMessage(messageNotify));
                 OtherUtils.playSound(p,10, 2, SoundType.FINISH_GRANT, plugin.getConfigManager());
             }
         }

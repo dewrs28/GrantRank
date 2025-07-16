@@ -17,11 +17,7 @@ public class SQLiteConnection extends ConnectionFactory{
     @Override
     public void connect(){
         try {
-            try {
-                Class.forName("org.sqlite.JDBC");
-            } catch (ClassNotFoundException e) {
-                e.printStackTrace();
-            }
+            Class.forName("org.sqlite.JDBC");
 
             File dbFile = new File(dataFolder, "storage.db");
             if (dbFile.exists()) {
@@ -30,7 +26,7 @@ public class SQLiteConnection extends ConnectionFactory{
 
             connection = DriverManager.getConnection("jdbc:sqlite:" + dbFile.getAbsolutePath());
             setupSQLite(connection);
-        }catch (SQLException | IOException ex){
+        }catch (SQLException | IOException | ClassNotFoundException ex){
             ex.printStackTrace();
         }
     }

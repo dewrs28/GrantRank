@@ -1,13 +1,16 @@
 package me.dewrs.utils;
 
-import org.bukkit.ChatColor;
+import net.md_5.bungee.api.ChatColor;
 
 import java.util.List;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 public class MessageUtils {
 
-    public static String getColoredMessage(String message){
-        return ChatColor.translateAlternateColorCodes('&', message);
+    public static String getColoredMessage(String message) {
+        message = ChatColor.translateAlternateColorCodes('&', message);
+        return message;
     }
 
     public static String getStringFromList(List<String> strings){
