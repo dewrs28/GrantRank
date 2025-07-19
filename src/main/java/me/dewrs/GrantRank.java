@@ -13,6 +13,7 @@ import me.dewrs.managers.*;
 import me.dewrs.storage.ConnectionFactory;
 import me.dewrs.storage.StorageManager;
 import me.dewrs.utils.MessageUtils;
+import me.dewrs.utils.ServerVersion;
 import net.luckperms.api.LuckPerms;
 import org.bukkit.Bukkit;
 import org.bukkit.plugin.PluginDescriptionFile;
@@ -23,6 +24,9 @@ public class GrantRank extends JavaPlugin {
     public static final String PREFIX = MessageUtils.getColoredMessage("&8[&dGrants&8]&r ");
     PluginDescriptionFile pluginDescriptionFile = getDescription();
     public final String version = pluginDescriptionFile.getVersion();
+    private static ServerVersion serverVersion;
+    private static String bukkitVersion;
+    private static boolean legacyServer;
     private ConfigManager configManager;
     private MessagesManager messagesManager;
     private InventoryManager inventoryManager;
@@ -37,7 +41,10 @@ public class GrantRank extends JavaPlugin {
     private UpdateCheckerManager updateCheckerManager;
 
     @Override
-    public void onEnable(){
+    public void onEnable() {
+        bukkitVersion = ServerVersion.getBukkitVersion();
+        serverVersion = ServerVersion.getServerVersion();
+        legacyServer = ServerVersion.isLegacyServer();
         configManager = new ConfigManager(this);
         messagesManager = new MessagesManager(this);
         inventoryManager = new InventoryManager(this);
@@ -131,5 +138,17 @@ public class GrantRank extends JavaPlugin {
 
     public UpdateCheckerManager getUpdateCheckerManager() {
         return updateCheckerManager;
+    }
+
+    public static ServerVersion getServerVersion() {
+        return serverVersion;
+    }
+
+    public static boolean isLegacyServer() {
+        return legacyServer;
+    }
+
+    public static String getBukkitVersion() {
+        return bukkitVersion;
     }
 }
