@@ -18,6 +18,12 @@ settings:
   #CUSTOM: Organizes the inventory as you wish, modifying it from the "ranks.yml" file.
   #Default: LUCKPERMS
   grants_menu_type: LUCKPERMS
+  #Choose how a player's new ranks will be added.
+  #Possible options:
+  #ADD: Add the new rank keeping the previous ones valid.
+  #SET: Add the new rank but first delete all the previous ones.
+  #Default: ADD
+  parent_rank_type: ADD
   #If your "grant_menu_type" is set to LUCKPERMS, you can decide which groups will not appear in the grants menu.
   #If you don't want to exclude any group, remove the "#" from the following commented line and comment the one that is not.
   #excluse_luckperms_groups: []

@@ -2,6 +2,7 @@ package me.dewrs.managers;
 
 import me.dewrs.GrantRank;
 import me.dewrs.enums.NodeType;
+import me.dewrs.enums.ParentRankType;
 import me.dewrs.enums.SoundType;
 import me.dewrs.logger.LogSender;
 import me.dewrs.model.ModifyData;
@@ -21,16 +22,14 @@ import org.bukkit.Bukkit;
 import org.bukkit.entity.Player;
 
 import java.time.Duration;
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.List;
-import java.util.UUID;
+import java.util.*;
 import java.util.concurrent.CompletableFuture;
 import java.util.function.Consumer;
 
 public class UserDataManager {
     private GrantRank plugin;
-    public UserDataManager(GrantRank plugin){
+
+    public UserDataManager(GrantRank plugin) {
         this.plugin = plugin;
     }
 
@@ -51,8 +50,8 @@ public class UserDataManager {
         userFuture.thenAccept(user -> {
             Collection<Node> nodes = user.getNodes();
             List<InheritanceNode> groupNodes = new ArrayList<>();
-            for(Node n : nodes){
-                if(n.getType() == net.luckperms.api.node.NodeType.INHERITANCE){
+            for (Node n : nodes) {
+                if (n.getType() == net.luckperms.api.node.NodeType.INHERITANCE) {
                     groupNodes.add((InheritanceNode) n);
                 }
             }
@@ -60,13 +59,13 @@ public class UserDataManager {
         });
     }
 
-    public void getInheritancePermissionFromUUID(UUID uuid, Consumer<List<PermissionNode>> callBack){
+    public void getInheritancePermissionFromUUID(UUID uuid, Consumer<List<PermissionNode>> callBack) {
         CompletableFuture<User> userFuture = plugin.getLuckPermsApi().getUserManager().loadUser(uuid);
         userFuture.thenAccept(user -> {
             Collection<Node> nodes = user.getNodes();
             List<PermissionNode> groupNodes = new ArrayList<>();
-            for(Node n : nodes){
-                if(n.getType() == net.luckperms.api.node.NodeType.PERMISSION){
+            for (Node n : nodes) {
+                if (n.getType() == net.luckperms.api.node.NodeType.PERMISSION) {
                     groupNodes.add((PermissionNode) n);
                 }
             }
@@ -138,68 +137,18 @@ public class UserDataManager {
             }
             user.data().remove(nodeData);
             plugin.getStorageManager().updateRevokeNodeLog(nodeLog.getId(), true, () ->
-                    manageRevokeMessages(inventoryPlayer, player, nodeLog, nodeType));
+                    manageChatRevokeMessages(inventoryPlayer, player, nodeLog, nodeType));
         });
     }
 
-    private boolean nodeLogEqualsToNode(NodeLog nodeLog, Node n){
+    private boolean nodeLogEqualsToNode(NodeLog nodeLog, Node n) {
         String node = nodeLog.getNode();
         boolean isTemp = nodeLog.getExpiry() != -1;
         ImmutableContextSet immutableContextSet = nodeLog.getContextSet().immutableCopy();
         return n.getKey().equals(node) && n.getValue() && n.getContexts().equals(immutableContextSet) && n.hasExpiry() == isTemp;
     }
 
-    private void manageRevokeMessages(InventoryPlayer inventoryPlayer, Player player, NodeLog nodeLog, NodeType nodeType){
-        String nameUser = nodeLog.getName_user();
-        String nameOperator = inventoryPlayer.getName();
-
-        if(player == null){
-            return;
-        }
-
-        String message;
-        if(nodeType == NodeType.RANK){
-            String[] splitNode = nodeLog.getNode().split("\\.");
-            message = plugin.getMessagesManager().getGrantRevoke()
-                    .replace("%player%", nameUser)
-                    .replace("%rank%", splitNode[1])
-                    .replace("%id%", String.valueOf(nodeLog.getId()));
-        }else{
-            message = plugin.getMessagesManager().getPermissionRevoke()
-                    .replace("%player%", nameUser)
-                    .replace("%permission%", nodeLog.getNode())
-                    .replace("%id%", String.valueOf(nodeLog.getId()));
-        }
-
-        String messageNotify;
-        if(nodeType == NodeType.RANK){
-            String[] splitNode = nodeLog.getNode().split("\\.");
-            messageNotify = plugin.getMessagesManager().getGrantRevokeNotify()
-                    .replace("%player%", nameUser)
-                    .replace("%rank%", splitNode[1])
-                    .replace("%operator%", nameOperator)
-                    .replace("%id%", String.valueOf(nodeLog.getId()));
-        }else{
-            messageNotify = plugin.getMessagesManager().getPermissionRevokeNotify()
-                    .replace("%player%", nameUser)
-                    .replace("%permission%", nodeLog.getNode())
-                    .replace("%operator%", nameOperator)
-                    .replace("%id%", String.valueOf(nodeLog.getId()));
-        }
-
-        player.sendMessage(GrantRank.PREFIX+ MessageUtils.getColoredMessage(message));
-        OtherUtils.playSound(player,10, 2, SoundType.FINISH_GRANT, plugin.getConfigManager());
-
-        LogSender.sendLogMessage(messageNotify);
-        for(Player p : Bukkit.getOnlinePlayers()){
-            if(PermissionUtils.canReceiveNotifies(p)){
-                p.sendMessage(GrantRank.PREFIX+MessageUtils.getColoredMessage(messageNotify));
-                OtherUtils.playSound(p,10, 2, SoundType.FINISH_GRANT, plugin.getConfigManager());
-            }
-        }
-    }
-
-    public void giveNodeToPlayer(InventoryPlayer inventoryPlayer, Player player){
+    public void giveNodeToPlayer(InventoryPlayer inventoryPlayer, Player player) {
         ModifyData modifyData = inventoryPlayer.getModifyData();
         NodeType nodeType = OtherUtils.getNodeType(modifyData);
 
@@ -210,33 +159,33 @@ public class UserDataManager {
         String reason = modifyData.getReason();
         ArrayList<String> contexts = modifyData.getContexts();
 
-        if(contexts == null){
+        if (contexts == null) {
             contexts = new ArrayList<>();
         }
         MutableContextSet contextSet = MutableContextSet.create();
-        for(String s : contexts){
+        for (String s : contexts) {
             String[] split = s.split("=");
             contextSet.add(split[0], split[1]);
         }
 
         Node node;
-        if(expiry == -1) {
-            if(nodeType == NodeType.RANK) {
+        if (expiry == -1) {
+            if (nodeType == NodeType.RANK) {
                 node = InheritanceNode.builder(modifyData.getRank())
                         .context(contextSet)
                         .build();
-            }else{
+            } else {
                 node = PermissionNode.builder(modifyData.getPermission())
                         .context(contextSet)
                         .build();
             }
-        }else{
-            if(nodeType == NodeType.RANK) {
+        } else {
+            if (nodeType == NodeType.RANK) {
                 node = InheritanceNode.builder(modifyData.getRank())
                         .expiry(Duration.ofMillis(expiry))
                         .context(contextSet)
                         .build();
-            }else{
+            } else {
                 node = PermissionNode.builder(modifyData.getPermission())
                         .expiry(Duration.ofMillis(expiry))
                         .context(contextSet)
@@ -246,6 +195,7 @@ public class UserDataManager {
 
         UUID uuid = inventoryPlayer.getTargetUuid();
         plugin.getLuckPermsApi().getUserManager().modifyUser(uuid, user -> {
+            if(plugin.getConfigManager().getParentRankType() == ParentRankType.SET) user.data().clear();
             user.data().add(node);
             long creation_time = System.currentTimeMillis();
             NodeLog nodeLog = new NodeLog(uuid, nameUser, nameOperator, node.getKey(), expiry, reason, contextSet, creation_time, false);
@@ -255,77 +205,117 @@ public class UserDataManager {
         });
     }
 
-    private void manageChatSuccessMessages(InventoryPlayer inventoryPlayer, Player player, ModifyData modifyData, String timeString, NodeType nodeType){
+    /*
+    Util Methods To Manage Chat Messages And Replaces
+    */
+    private void manageChatSuccessMessages(InventoryPlayer inventoryPlayer, Player player, ModifyData modifyData, String timeString, NodeType nodeType) {
         String nameUser = inventoryPlayer.getTargetName();
         String nameOperator = inventoryPlayer.getName();
 
-        if(player == null){
+        if (player == null) {
             return;
         }
         StringBuilder contextsMessage = new StringBuilder();
         int i = 1;
-        for(String s : modifyData.getContexts()){
-            if(modifyData.getContexts().size() != i) {
+        for (String s : modifyData.getContexts()) {
+            if (modifyData.getContexts().size() != i) {
                 contextsMessage.append(s).append(", ");
-            }else{
+            } else {
                 contextsMessage.append(s);
             }
             i++;
         }
 
-        String messageNotify;
-        if(nodeType == NodeType.RANK){
-            messageNotify = plugin.getMessagesManager().getGrantSuccessNotify()
-                    .replace("%player%", nameUser)
-                    .replace("%contexts%", contextsMessage.toString())
-                    .replace("%rank%", modifyData.getRank().getName())
-                    .replace("%time%", timeString)
-                    .replace("%operator%", nameOperator);
-        }else{
-            messageNotify = plugin.getMessagesManager().getPermissionSuccessNotify()
-                    .replace("%player%", nameUser)
-                    .replace("%contexts%", contextsMessage.toString())
-                    .replace("%permission%", modifyData.getPermission())
-                    .replace("%time%", timeString)
-                    .replace("%operator%", nameOperator);
-        }
-        String message;
-        if(timeString.equalsIgnoreCase("permanent")) {
-            //Perm
-            if(nodeType == NodeType.RANK) {
-                message = plugin.getMessagesManager().getGrantSuccessPerm()
-                        .replace("%player%", nameUser)
-                        .replace("%contexts%", contextsMessage.toString())
-                        .replace("%rank%", modifyData.getRank().getName());
-            }else{
-                message = plugin.getMessagesManager().getPermissionSuccessPerm()
-                        .replace("%player%", nameUser)
-                        .replace("%contexts%", contextsMessage.toString())
-                        .replace("%permission%", modifyData.getPermission());
-            }
-        }else{
-            //Temp
-            if(nodeType == NodeType.RANK) {
-                message = plugin.getMessagesManager().getGrantSuccessTemp()
-                        .replace("%player%", nameUser).replace("%contexts%", contextsMessage.toString())
-                        .replace("%time%", timeString)
-                        .replace("%rank%", modifyData.getRank().getName());
-            }else{
-                message = plugin.getMessagesManager().getPermissionSuccessTemp()
-                        .replace("%player%", nameUser).replace("%contexts%", contextsMessage.toString())
-                        .replace("%time%", timeString)
-                        .replace("%permission%", modifyData.getPermission());
-            }
-        }
-        player.sendMessage(GrantRank.PREFIX+ MessageUtils.getColoredMessage(message));
-        OtherUtils.playSound(player,10, 2, SoundType.FINISH_GRANT, plugin.getConfigManager());
+        boolean isRank = nodeType == NodeType.RANK;
+        String time = timeString.equalsIgnoreCase("permanent") ? "" : timeString;
+        String value = isRank ? modifyData.getRank().getName() : modifyData.getPermission();
+        String messageNotify = replaceGiveMessageNotify(nameUser, contextsMessage.toString(), value, timeString, nameOperator, isRank);
+        String message = replaceGiveMessageOperator(nameUser, contextsMessage.toString(), value, time, isRank);
+
+        player.sendMessage(GrantRank.PREFIX + MessageUtils.getColoredMessage(message));
+        OtherUtils.playSound(player, 10, 2, SoundType.FINISH_GRANT, plugin.getConfigManager());
 
         LogSender.sendLogMessage(messageNotify);
-        for(Player p : Bukkit.getOnlinePlayers()){
-            if(PermissionUtils.canReceiveNotifies(p)){
-                p.sendMessage(GrantRank.PREFIX+MessageUtils.getColoredMessage(messageNotify));
-                OtherUtils.playSound(p,10, 2, SoundType.FINISH_GRANT, plugin.getConfigManager());
+        for (Player p : Bukkit.getOnlinePlayers()) {
+            if (PermissionUtils.canReceiveNotifies(p)) {
+                p.sendMessage(GrantRank.PREFIX + MessageUtils.getColoredMessage(messageNotify));
+                OtherUtils.playSound(p, 10, 2, SoundType.FINISH_GRANT, plugin.getConfigManager());
             }
         }
+    }
+
+    private void manageChatRevokeMessages(InventoryPlayer inventoryPlayer, Player player, NodeLog nodeLog, NodeType nodeType) {
+        String nameUser = nodeLog.getName_user();
+        String nameOperator = inventoryPlayer.getName();
+
+        if (player == null) {
+            return;
+        }
+
+        boolean isRank = nodeType == NodeType.RANK;
+        String nodeValue = isRank ? nodeLog.getNode().split("\\.")[1] : nodeLog.getNode();
+        String nodeId = String.valueOf(nodeLog.getId());
+
+        String message = replaceRevokeMessageOperator(nameUser, nodeValue, nodeId, isRank);
+        String messageNotify = replaceRevokeMessageNotify(nameUser, nodeValue, nameOperator, nodeId, isRank);
+
+        player.sendMessage(GrantRank.PREFIX + MessageUtils.getColoredMessage(message));
+        OtherUtils.playSound(player, 10, 2, SoundType.FINISH_GRANT, plugin.getConfigManager());
+
+        LogSender.sendLogMessage(messageNotify);
+        for (Player p : Bukkit.getOnlinePlayers()) {
+            if (PermissionUtils.canReceiveNotifies(p)) {
+                p.sendMessage(GrantRank.PREFIX + MessageUtils.getColoredMessage(messageNotify));
+                OtherUtils.playSound(p, 10, 2, SoundType.FINISH_GRANT, plugin.getConfigManager());
+            }
+        }
+    }
+
+    private String replaceGiveMessageNotify(String nameUser, String contexts, String nodeValue, String time, String operator, boolean isRank){
+        String nodeVariable = isRank ? "%rank%" : "%permission%";
+        String mainMessage = isRank ? plugin.getMessagesManager().getGrantSuccessNotify() : plugin.getMessagesManager().getPermissionSuccessNotify();
+        return mainMessage
+                .replace("%player%", nameUser)
+                .replace("%contexts%", contexts)
+                .replace(nodeVariable, nodeValue)
+                .replace("%time%", time)
+                .replace("%operator%", operator);
+    }
+
+    private String replaceGiveMessageOperator(String nameUser, String contexts, String nodeValue, String time, boolean isRank){
+        String mainMessage;
+        boolean hasTime = !Objects.equals(time, "");
+        if(isRank){
+            mainMessage = hasTime ? plugin.getMessagesManager().getGrantSuccessTemp() : plugin.getMessagesManager().getGrantSuccessPerm();
+        }else{
+            mainMessage = hasTime ? plugin.getMessagesManager().getPermissionSuccessTemp() : plugin.getMessagesManager().getPermissionSuccessPerm();
+        }
+        String nodeVariable = isRank ? "%rank%" : "%permission%";
+        String message = mainMessage
+                .replace("%player%", nameUser)
+                .replace("%contexts%", contexts)
+                .replace(nodeVariable, nodeValue);
+        String finalMessage = message;
+        if(hasTime) finalMessage = message.replace("%time%", time);
+        return finalMessage;
+    }
+
+    private String replaceRevokeMessageNotify(String nameUser, String nodeValue, String operator, String nodeId, boolean isRank){
+        String nodeVariable = isRank ? "%rank%" : "%permission%";
+        String mainMessage = isRank ? plugin.getMessagesManager().getGrantRevokeNotify() : plugin.getMessagesManager().getPermissionRevokeNotify();
+        return mainMessage
+                .replace("%player%", nameUser)
+                .replace(nodeVariable, nodeValue)
+                .replace("%operator%", operator)
+                .replace("%id%", nodeId);
+    }
+
+    private String replaceRevokeMessageOperator(String nameUser, String nodeValue, String nodeId, boolean isRank){
+        String nodeVariable = isRank ? "%rank%" : "%permission%";
+        String mainMessage = isRank ? plugin.getMessagesManager().getGrantRevoke() : plugin.getMessagesManager().getPermissionRevokeNotify();
+        return mainMessage
+                .replace("%player%", nameUser)
+                .replace(nodeVariable, nodeValue)
+                .replace("%id%", nodeId);
     }
 }

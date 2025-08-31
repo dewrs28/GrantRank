@@ -39,8 +39,8 @@ public class InventoryManager {
 
     @SuppressWarnings("All")
     public void createInventory(CustomInventory customInventory, InventoryPlayer inventoryPlayer, Consumer<Inventory> callBack) {
-        Inventory inv = Bukkit.createInventory(null, 9 * customInventory.getRows(), MessageUtils.getColoredMessage(customInventory.getTitle()
-                .replace("%player%", inventoryPlayer.getTargetName())));
+        String inventoryTitle = inventoryPlayer.getTargetName() == null ? customInventory.getTitle() : customInventory.getTitle().replace("%player%", inventoryPlayer.getTargetName());
+        Inventory inv = Bukkit.createInventory(null, 9 * customInventory.getRows(), MessageUtils.getColoredMessage(inventoryTitle));
         String path = customInventory.getInv();
         if(path.startsWith("grants.yml")){
             if (plugin.getConfigManager().getMenuType().equals(GrantMenuType.LUCKPERMS)){

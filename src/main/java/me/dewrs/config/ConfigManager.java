@@ -3,6 +3,7 @@ package me.dewrs.config;
 import me.dewrs.GrantRank;
 import me.dewrs.enums.CustomActionType;
 import me.dewrs.enums.GrantMenuType;
+import me.dewrs.enums.ParentRankType;
 import me.dewrs.model.CustomItem;
 import me.dewrs.storage.StorageType;
 import org.bukkit.Material;
@@ -30,6 +31,7 @@ public class ConfigManager {
     private boolean isEnabledSoundOpenInv;
     private boolean isEnabledSoundNoPerm;
     private boolean isEnabledSoundFinishGrant;
+    private ParentRankType parentRankType;
 
     public ConfigManager(GrantRank plugin){
         customConfig = new CustomConfig("config.yml", null, plugin);
@@ -54,6 +56,11 @@ public class ConfigManager {
             storageType = StorageType.valueOf(Objects.requireNonNull(config.getString("settings.storage.type")).toUpperCase());
         }catch (IllegalArgumentException ex){
             storageType = StorageType.SQLITE;
+        }
+        try {
+            parentRankType = ParentRankType.valueOf(Objects.requireNonNull(config.getString("settings.parent_rank_type")).toUpperCase());
+        }catch (IllegalArgumentException ex){
+            parentRankType = ParentRankType.ADD;
         }
         itemLpGrantsMenu = loadItemLP(config);
         storageHost = config.getString("settings.storage.host");
@@ -155,5 +162,9 @@ public class ConfigManager {
 
     public boolean isEnabledSoundFinishGrant() {
         return isEnabledSoundFinishGrant;
+    }
+
+    public ParentRankType getParentRankType() {
+        return parentRankType;
     }
 }
