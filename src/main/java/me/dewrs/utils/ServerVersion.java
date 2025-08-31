@@ -32,7 +32,8 @@ public enum ServerVersion {
     v1_21_R1,
     v1_21_R2,
     v1_21_R3,
-    v1_21_R4;
+    v1_21_R4,
+    v1_21_R5;
 
     private static boolean isNewerThanOrEqualTo(ServerVersion version1, ServerVersion version2) {
         return version1.ordinal() >= version2.ordinal();
@@ -64,7 +65,18 @@ public enum ServerVersion {
             }
             case "1.21.4": return ServerVersion.v1_21_R3;
             case "1.21.5": return ServerVersion.v1_21_R4;
-            default: return ServerVersion.valueOf(packageName.replace("org.bukkit.craftbukkit.", ""));
+            case "1.21.6":
+            case "1.21.7":
+            case "1.21.8": {
+                return ServerVersion.v1_21_R5;
+            }
+            default: {
+                try{
+                    return ServerVersion.valueOf(packageName.replace("org.bukkit.craftbukkit.", ""));
+                }catch (Exception e){
+                    return ServerVersion.v1_21_R5;
+                }
+            }
         }
     }
 }

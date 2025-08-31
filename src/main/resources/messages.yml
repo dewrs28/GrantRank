@@ -31,6 +31,7 @@ gui:
   revoke_lore: '&aPress ''Q'' to revoke this grant'
   revoked_lore: '&cThis grant is revoked'
 help_admin_command:
+  - ''
   - '&d&lGRANTS PLUGIN'
   - ''
   - '&d/gadmin reload&f: Reload the plugin'
