@@ -39,6 +39,7 @@ public class GrantRank extends JavaPlugin {
     private RanksConfigManager ranksConfigManager;
     private ConnectionFactory connectionFactory;
     private UpdateCheckerManager updateCheckerManager;
+    private DiscordConfigManager discordConfigManager;
 
     @Override
     public void onEnable() {
@@ -54,6 +55,7 @@ public class GrantRank extends JavaPlugin {
         hookManager = new HookManager(this);
         actionInventoryManager = new ActionInventoryManager(this);
         storageManager = new StorageManager(this);
+        discordConfigManager = new DiscordConfigManager(this);
         regCommands();
         regEvents();
         updateCheckerManager = new UpdateCheckerManager(version);

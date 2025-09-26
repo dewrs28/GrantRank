@@ -44,7 +44,7 @@ public class UpdateCheckerManager {
                 LogSender.sendLogMessage("&cGrantRank is outdated!");
                 LogSender.sendLogMessage("&cNewest version: &e"+latestVersion);
                 LogSender.sendLogMessage("&cYour version: &e"+version);
-                LogSender.sendLogMessage("&cPlease Update Here: &ehttps://spigotmc.org/resources/125879");
+                LogSender.sendLogMessage("&cPlease Update Here: &ehttps://modrinth.com/plugin/grantrank");
                 LogSender.sendLogMessage("*********************************************************************");
             }
         } else {

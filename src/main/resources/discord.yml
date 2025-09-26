@@ -1,0 +1,7 @@
+discord:
+  bot:
+    enabled: true
+    bot_token: ""
+  webhook:
+    enabled: true
+    webhook_url: ""
