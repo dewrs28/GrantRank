@@ -195,7 +195,7 @@ public class UserDataManager {
 
         UUID uuid = inventoryPlayer.getTargetUuid();
         plugin.getLuckPermsApi().getUserManager().modifyUser(uuid, user -> {
-            if(plugin.getConfigManager().getParentRankType() == ParentRankType.SET) user.data().clear();
+            if(plugin.getConfigManager().getParentRankType() == ParentRankType.SET && nodeType == NodeType.RANK) user.data().clear();
             user.data().add(node);
             long creation_time = System.currentTimeMillis();
             NodeLog nodeLog = new NodeLog(uuid, nameUser, nameOperator, node.getKey(), expiry, reason, contextSet, creation_time, false);
