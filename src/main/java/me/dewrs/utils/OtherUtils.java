@@ -24,15 +24,15 @@ public class OtherUtils {
     }
 
     public static boolean isValidContext(String context) {
+        if (context == null || !context.contains("=")) return false;
         if (hasSpaces(context)) return false;
-        String[] splitContext = context.split("=");
-        return splitContext.length != 1;
+
+        String[] parts = context.split("=", 2);
+        return parts.length == 2 && !parts[0].isEmpty() && !parts[1].isEmpty();
     }
 
     public static boolean isValidPermission(String permission) {
-        if (hasSpaces(permission)) return false;
-        String[] splitPermission = permission.split("\\.");
-        return splitPermission.length != 1;
+        return !hasSpaces(permission);
     }
 
     public static NodeType getNodeType(ModifyData modifyData) {
@@ -168,5 +168,19 @@ public class OtherUtils {
         } catch (NoSuchMethodException | InvocationTargetException | IllegalAccessException | ClassNotFoundException e) {
             throw new RuntimeException(e);
         }
+    }
+
+    public static String getContextsStringFromList(ArrayList<String> contextsList){
+        StringBuilder contextsMessage = new StringBuilder();
+        int i = 1;
+        for (String s : contextsList) {
+            if (contextsList.size() != i) {
+                contextsMessage.append(s).append(", ");
+            } else {
+                contextsMessage.append(s);
+            }
+            i++;
+        }
+        return contextsMessage.toString();
     }
 }

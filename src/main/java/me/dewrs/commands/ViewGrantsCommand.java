@@ -53,13 +53,19 @@ public class ViewGrantsCommand implements CommandExecutor {
                         player.sendMessage(GrantRank.PREFIX + MessageUtils.getColoredMessage(plugin.getMessagesManager().getNoPlayer()));
                         return;
                     }
+                    if(inventoryManager.containsWaitingGuiPlayer(player.getUniqueId())){
+                        player.sendMessage(GrantRank.PREFIX+MessageUtils.getColoredMessage(plugin.getMessagesManager().getWaitingGui()));
+                        return;
+                    }
                     InventoryPlayer inventoryPlayer = new InventoryPlayer(player.getName(), customInventory, uuid, new ModifyData());
+                    inventoryManager.addWaitingGuiPlayer(player.getUniqueId());
                     userDataManager.fetchStoredName(inventoryPlayer.getTargetUuid()).thenAccept(name -> {
                         inventoryPlayer.setTargetName(name);
                         inventoryManager.setupUserNodeLogPagination(inventoryPlayer, (customInventory.getRows() - 2) * 9, () -> {
                             player.sendMessage(GrantRank.PREFIX+MessageUtils.getColoredMessage(plugin.getMessagesManager().getLoadingUserLogs()
                                     .replace("%player%", name)));
                             inventoryManager.createInventory(customInventory, inventoryPlayer, inv -> {
+                                inventoryManager.removeWaitingGuiPlayer(player.getUniqueId());
                                 player.sendMessage(GrantRank.PREFIX+ MessageUtils.getColoredMessage(plugin.getMessagesManager().getGlobalLogsGuiOpen()));
                                 player.openInventory(inv);
                                 inventoryManager.setInventoryPlayer(inventoryPlayer, customInventory);

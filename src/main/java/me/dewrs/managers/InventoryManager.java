@@ -29,12 +29,14 @@ public class InventoryManager {
 
     private ArrayList<CustomInventory> inventories;
     private ArrayList<InventoryPlayer> players;
+    private ArrayList<UUID> waitingGuiPlayers;
     private GrantRank plugin;
 
     public InventoryManager(GrantRank plugin) {
         this.plugin = plugin;
         inventories = new ArrayList<>();
         players = new ArrayList<>();
+        waitingGuiPlayers = new ArrayList<>();
     }
 
     @SuppressWarnings("All")
@@ -363,11 +365,17 @@ public class InventoryManager {
         this.inventories = inventories;
     }
 
-    public ArrayList<InventoryPlayer> getPlayers() {
-        return players;
+    public void addWaitingGuiPlayer(UUID uuid) {
+        if (!containsWaitingGuiPlayer(uuid)){
+            waitingGuiPlayers.add(uuid);
+        }
     }
 
-    public void setPlayers(ArrayList<InventoryPlayer> players) {
-        this.players = players;
+    public boolean containsWaitingGuiPlayer(UUID uuid) {
+        return waitingGuiPlayers.contains(uuid);
+    }
+
+    public void removeWaitingGuiPlayer(UUID uuid) {
+        waitingGuiPlayers.remove(uuid);
     }
 }

@@ -97,11 +97,17 @@ public class ActionInventoryManager {
             return;
         }
         InventoryManager inventoryManager = plugin.getInventoryManager();
+        if(inventoryManager.containsWaitingGuiPlayer(player.getUniqueId())){
+            player.sendMessage(GrantRank.PREFIX+MessageUtils.getColoredMessage(plugin.getMessagesManager().getWaitingGui()));
+            return;
+        }
         CustomInventory customInventory = plugin.getInventoryManager().getCustomInventory("nodes-logs.yml");
+        inventoryManager.addWaitingGuiPlayer(player.getUniqueId());
         inventoryManager.setupUserNodeLogPagination(inventoryPlayer, (customInventory.getRows() - 2) * 9, () -> {
             player.sendMessage(GrantRank.PREFIX+MessageUtils.getColoredMessage(plugin.getMessagesManager().getLoadingUserLogs()
                     .replace("%player%", inventoryPlayer.getTargetName())));
             inventoryManager.createInventory(customInventory, inventoryPlayer, inv -> {
+                inventoryManager.removeWaitingGuiPlayer(player.getUniqueId());
                 player.sendMessage(GrantRank.PREFIX+ MessageUtils.getColoredMessage(plugin.getMessagesManager().getGlobalLogsGuiOpen()));
                 player.openInventory(inv);
                 inventoryManager.setInventoryPlayer(inventoryPlayer, customInventory);
@@ -112,7 +118,7 @@ public class ActionInventoryManager {
 
     private void manageConfirmRevoke(InventoryPlayer inventoryPlayer, Player player){
         NodeLog nodeLog = inventoryPlayer.getModifyData().getNodeLog();
-        plugin.getUserDataManager().removeNodeToPlayer(inventoryPlayer, player, nodeLog);
+        plugin.getUserDataManager().removeNodeToPlayer(player, nodeLog);
         player.closeInventory();
     }
 

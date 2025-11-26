@@ -16,7 +16,7 @@ public class TimeUtils {
     public static Duration getDurationFromTime(String time) {
         time = time.trim().toLowerCase();
 
-        if (time.endsWith("perma") || time.endsWith("permanent")) {
+        if (time.endsWith("perma") || time.endsWith("permanent") || time.isEmpty()) {
             return null;
         }
 

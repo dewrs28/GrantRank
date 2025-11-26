@@ -38,6 +38,7 @@ public class MessagesManager {
     private String globalLogsGuiOpen;
     private String loadingLogs;
     private String loadingUserLogs;
+    private String waitingGui;
 
     public MessagesManager(GrantRank plugin){
         customConfig = new CustomConfig("messages.yml", null, plugin);
@@ -81,6 +82,7 @@ public class MessagesManager {
         globalLogsGuiOpen = config.getString("messages.global_logs_gui_open");
         loadingLogs = config.getString("messages.loading_logs");
         loadingUserLogs = config.getString("messages.loading_user_logs");
+        waitingGui = config.getString("messages.waiting_gui");
         //Gui Messages
         confirmRevokeItem = config.getString("gui.confirm_revoke");
         cancelRevokeItem = config.getString("gui.cancel_revoke");
@@ -210,5 +212,9 @@ public class MessagesManager {
 
     public String getLoadingUserLogs() {
         return loadingUserLogs;
+    }
+
+    public String getWaitingGui() {
+        return waitingGui;
     }
 }

@@ -22,6 +22,7 @@ public class PlayerListener implements Listener {
     public void onPlayerQuit(PlayerQuitEvent event){
         Player player = event.getPlayer();
         InventoryManager inventoryManager = plugin.getInventoryManager();
+        inventoryManager.removeWaitingGuiPlayer(player.getUniqueId());
         InventoryPlayer inventoryPlayer = inventoryManager.getInventoryPlayer(player);
         if(inventoryPlayer == null){
             return;

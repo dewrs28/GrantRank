@@ -24,6 +24,7 @@ messages:
   permission_revoked_notify: '&eStaff &b%operator% &ehas &crevoked &ethe permission &b%permission% &efrom player &b%player%&e. Represents id &b#%id%&a.'
   loading_logs: '&eLoading logs...'
   loading_user_logs: '&eLoading &b%player% &elogs...'
+  waiting_gui: "&cPlease wait for the current inventory to load."
   reload: '&aThe plugin has been successfully reloaded.'
 gui:
   confirm_revoke: '&aConfirm revoke this grant'
