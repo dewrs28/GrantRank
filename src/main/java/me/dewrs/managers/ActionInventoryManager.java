@@ -101,8 +101,9 @@ public class ActionInventoryManager {
             player.sendMessage(GrantRank.PREFIX+MessageUtils.getColoredMessage(plugin.getMessagesManager().getWaitingGui()));
             return;
         }
-        CustomInventory customInventory = plugin.getInventoryManager().getCustomInventory("nodes-logs.yml");
+        CustomInventory customInventory = OtherUtils.cloneCustomInventory(plugin.getInventoryManager().getCustomInventory("nodes-logs.yml"));
         inventoryManager.addWaitingGuiPlayer(player.getUniqueId());
+        inventoryPlayer.setActualPage(0);
         inventoryManager.setupUserNodeLogPagination(inventoryPlayer, (customInventory.getRows() - 2) * 9, () -> {
             player.sendMessage(GrantRank.PREFIX+MessageUtils.getColoredMessage(plugin.getMessagesManager().getLoadingUserLogs()
                     .replace("%player%", inventoryPlayer.getTargetName())));

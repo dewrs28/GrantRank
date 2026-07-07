@@ -42,7 +42,7 @@ public class GrantRank extends JavaPlugin {
 
     @Override
     public void onEnable() {
-        bukkitVersion = ServerVersion.getBukkitVersion();
+        bukkitVersion = ServerVersion.getNativeVersion();
         serverVersion = ServerVersion.getServerVersion();
         legacyServer = ServerVersion.isLegacyServer();
         configManager = new ConfigManager(this);

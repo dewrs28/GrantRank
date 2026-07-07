@@ -7,14 +7,12 @@ public class CustomInventory {
     private String title;
     private int rows;
     private ArrayList<CustomItem> customItems;
-    private int maxPages;
 
     public CustomInventory(String inv, String title, int rows, ArrayList<CustomItem> customItems) {
         this.inv = inv;
         this.title = title;
         this.rows = rows;
         this.customItems = customItems;
-        this.maxPages = 1;
     }
 
     public String getInv() {
@@ -47,13 +45,5 @@ public class CustomInventory {
 
     public void setCustomItems(ArrayList<CustomItem> customItems) {
         this.customItems = customItems;
-    }
-
-    public int getMaxPages() {
-        return maxPages;
-    }
-
-    public void setMaxPages(int maxPages) {
-        this.maxPages = maxPages;
     }
 }

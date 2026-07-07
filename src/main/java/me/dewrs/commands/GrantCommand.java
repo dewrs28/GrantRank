@@ -47,11 +47,18 @@ public class GrantCommand implements CommandExecutor {
             player.sendMessage(GrantRank.PREFIX+MessageUtils.getColoredMessage(plugin.getMessagesManager().getNicknameTooLong()));
             return true;
         }
+        InventoryManager inventoryManager = plugin.getInventoryManager();
+        if(inventoryManager.containsWaitingGuiPlayer(player.getUniqueId())){
+            player.sendMessage(GrantRank.PREFIX+MessageUtils.getColoredMessage(plugin.getMessagesManager().getWaitingGui()));
+            return true;
+        }
+        inventoryManager.addWaitingGuiPlayer(player.getUniqueId());
         UserDataManager userDataManager = plugin.getUserDataManager();
-        CustomInventory customInventory = plugin.getInventoryManager().getCustomInventory("grants.yml");
+        CustomInventory customInventory = OtherUtils.cloneCustomInventory(plugin.getInventoryManager().getCustomInventory("grants.yml"));
         userDataManager.fetchStoredUUID(nameTarget)
                 .thenAccept(uuid -> {
                     if (uuid == null) {
+                        inventoryManager.removeWaitingGuiPlayer(player.getUniqueId());
                         player.sendMessage(GrantRank.PREFIX + MessageUtils.getColoredMessage(plugin.getMessagesManager().getNoPlayer()));
                         return;
                     }
@@ -73,6 +80,7 @@ public class GrantCommand implements CommandExecutor {
             inventoryManager.setupCustomPagination(inventoryPlayer);
         }
         inventoryManager.createInventory(customInventory, inventoryPlayer, inv -> {
+            inventoryManager.removeWaitingGuiPlayer(player.getUniqueId());
             player.openInventory(inv);
             inventoryManager.setInventoryPlayer(inventoryPlayer, customInventory);
             player.sendMessage(GrantRank.PREFIX+MessageUtils.getColoredMessage(plugin.getMessagesManager().getGrantsGuiOpen()

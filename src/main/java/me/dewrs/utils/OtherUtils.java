@@ -54,7 +54,13 @@ public class OtherUtils {
     }
 
     public static CustomInventory cloneCustomInventory(CustomInventory customInventory){
-        return new CustomInventory(customInventory.getInv(), customInventory.getTitle(), customInventory.getRows(), customInventory.getCustomItems());
+        ArrayList<CustomItem> clonedItems = new ArrayList<>();
+        if (customInventory.getCustomItems() != null) {
+            for (CustomItem ci : customInventory.getCustomItems()) {
+                clonedItems.add(ItemUtils.cloneCustomItem(ci));
+            }
+        }
+        return new CustomInventory(customInventory.getInv(), customInventory.getTitle(), customInventory.getRows(), clonedItems);
     }
 
     public static String replaceEndingNumbers(String input, int newNumber) {

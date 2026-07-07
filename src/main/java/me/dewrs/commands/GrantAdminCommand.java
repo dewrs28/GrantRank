@@ -71,7 +71,7 @@ public class GrantAdminCommand implements CommandExecutor, TabCompleter {
             player.sendMessage(GrantRank.PREFIX+MessageUtils.getColoredMessage(plugin.getMessagesManager().getWaitingGui()));
             return;
         }
-        CustomInventory customInventory = plugin.getInventoryManager().getCustomInventory("nodes-logs.yml");
+        CustomInventory customInventory = OtherUtils.cloneCustomInventory(plugin.getInventoryManager().getCustomInventory("nodes-logs.yml"));
         InventoryPlayer inventoryPlayer = new InventoryPlayer(player.getName(), customInventory, new ModifyData());
         inventoryManager.addWaitingGuiPlayer(player.getUniqueId());
         inventoryManager.setupNodeLogPagination(inventoryPlayer, (customInventory.getRows() - 2) * 9, () -> {

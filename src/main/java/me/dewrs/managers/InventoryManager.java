@@ -53,7 +53,7 @@ public class InventoryManager {
             setStaticItemsInInventory(inv, customInventory, path, inventoryPlayer);
             callBack.accept(inv);
         }else if(path.startsWith("nodes-logs.yml")) {
-            setItemNodeLogInInventory(inv, inventoryPlayer, () -> {
+            setItemNodeLogInInventory(inv, inventoryPlayer, customInventory, ()  -> {
                 setStaticItemsInInventory(inv, customInventory, path, inventoryPlayer);
                 callBack.accept(inv);
             });
@@ -244,15 +244,15 @@ public class InventoryManager {
         customInventory.getCustomItems().removeIf(item -> item.getSlot() >= limit && item.getSlot() < (customInventory.getRows() - 2) * 9);
     }
 
-    private void setItemNodeLogInInventory(Inventory inventory, InventoryPlayer inventoryPlayer, Runnable callBack) {
+    private void setItemNodeLogInInventory(Inventory inventory, InventoryPlayer inventoryPlayer, CustomInventory customInventory, Runnable callBack) {
         int page = inventoryPlayer.getActualPage();
         List<NodeLog> nodesToShow = inventoryPlayer.getNodesForPage(page);
         removeNoUsedItems(0, inventoryPlayer.getCustomInventory());
-        processSequentiallyRequestNodeLog(inventory, inventoryPlayer, 0, nodesToShow, callBack);
+        processSequentiallyRequestNodeLog(inventory, customInventory, 0, nodesToShow, callBack);
     }
 
     @SuppressWarnings("All")
-    private void processSequentiallyRequestNodeLog(Inventory inventory, InventoryPlayer inventoryPlayer, int index, List<NodeLog> nodeLogs, Runnable callBack){
+    private void processSequentiallyRequestNodeLog(Inventory inventory, CustomInventory customInventory, int index, List<NodeLog> nodeLogs, Runnable callBack){
         if (index >= nodeLogs.size()) {
             callBack.run();
             return;
@@ -288,9 +288,9 @@ public class InventoryManager {
             ItemStack itemStack = ItemUtils.getItemStackFromCustomItem(customItem);
             ItemStack itemStackWithVariables = ItemUtils.getItemStackReplaceVariables(itemStack, variables);
             itemStackWithVariables = ItemUtils.getItemStackReplaceMultiLine(itemStack, "%contexts%", contextList);
-            if(isValid) inventoryPlayer.getCustomInventory().getCustomItems().add(customItem);
+            if(isValid) customInventory.getCustomItems().add(customItem);
             inventory.setItem(index, itemStackWithVariables);
-            processSequentiallyRequestNodeLog(inventory, inventoryPlayer, index+1, nodeLogs, callBack);
+            processSequentiallyRequestNodeLog(inventory, customInventory, index+1, nodeLogs, callBack);
         });
     }
 

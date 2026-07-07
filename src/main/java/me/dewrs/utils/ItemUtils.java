@@ -31,7 +31,7 @@ public class ItemUtils {
     }
 
     public static CustomItem cloneCustomItem(CustomItem customItem){
-        return new CustomItem(customItem.getName(), customItem.getAmount(), customItem.getMaterial(), customItem.getLore(), customItem.getSlot(), customItem.getCustomActionType());
+        return new CustomItem(customItem.getName(), customItem.getAmount(), customItem.getMaterial(), new ArrayList<>(customItem.getLore()), customItem.getSlot(), customItem.getCustomActionType());
     }
 
     public static ItemStack getItemStackReplaceVariables(ItemStack itemStack, Map<String, String> variables) {

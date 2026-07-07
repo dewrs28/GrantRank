@@ -3,6 +3,8 @@ package me.dewrs.utils;
 import me.dewrs.GrantRank;
 import org.bukkit.Bukkit;
 
+import java.lang.reflect.Method;
+
 public enum ServerVersion {
     v1_8_R1,
     v1_8_R2,
@@ -34,7 +36,9 @@ public enum ServerVersion {
     v1_21_R3,
     v1_21_R4,
     v1_21_R5,
-    v1_21_R6;
+    v1_21_R6,
+    v1_21_R7,
+    v26_1;
 
     private static boolean isNewerThanOrEqualTo(ServerVersion version1, ServerVersion version2) {
         return version1.ordinal() >= version2.ordinal();
@@ -44,8 +48,13 @@ public enum ServerVersion {
         return !isNewerThanOrEqualTo(GrantRank.getServerVersion(), v1_16_R1);
     }
 
-    public static String getBukkitVersion(){
-        return Bukkit.getServer().getBukkitVersion().split("-")[0];
+    public static String getNativeVersion() {
+        try {
+            Method method = Bukkit.class.getMethod("getMinecraftVersion");
+            return (String) method.invoke(null);
+        } catch (Exception ignored) {
+            return Bukkit.getServer().getBukkitVersion().split("-")[0];
+        }
     }
 
     public static ServerVersion getServerVersion(){
@@ -72,11 +81,17 @@ public enum ServerVersion {
             case "1.21.9":
             case "1.21.10":
                 return ServerVersion.v1_21_R6;
+            case "1.21.11":
+                return ServerVersion.v1_21_R7;
+            case "26.1":
+            case "26.1.1":
+            case "26.1.2":
+                return ServerVersion.v26_1;
             default:
                 try {
                     return ServerVersion.valueOf(packageName.replace("org.bukkit.craftbukkit.", ""));
                 } catch (Exception e) {
-                    return ServerVersion.v1_21_R6;
+                    return ServerVersion.v26_1;
                 }
         }
     }
