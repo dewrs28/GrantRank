@@ -133,7 +133,7 @@ public class InventoryManager {
     }
 
     public void setupNodeLogPagination(InventoryPlayer inventoryPlayer, int maxItemsPerPage, Runnable callBack) {
-        plugin.getStorageManager().getNodeLogs(1, nodeLogs -> {
+        plugin.getStorageManager().getNodeLogs(nodeLogs -> {
             List<List<NodeLog>> pages = new ArrayList<>();
             List<NodeLog> currentPage = new ArrayList<>();
             for (NodeLog log : nodeLogs.values()) {
@@ -275,7 +275,7 @@ public class InventoryManager {
         CustomItem customItem = ItemUtils.cloneCustomItem(plugin.getConfigManager().getItemNodeLog());
         customItem.setSlot(index);
         customItem.setNodeLog(nodeLog);
-        plugin.getUserDataManager().setNodeData(nodeLog, (isValid) -> {
+        plugin.getUserDataManager().validateNodeData(nodeLog, (isValid) -> {
             Map<String, String> variables = new HashMap<>();
             variables.put("%id%", id);
             variables.put("%node%", node);

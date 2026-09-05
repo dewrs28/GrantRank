@@ -119,8 +119,14 @@ public class ActionInventoryManager {
 
     private void manageConfirmRevoke(InventoryPlayer inventoryPlayer, Player player){
         NodeLog nodeLog = inventoryPlayer.getModifyData().getNodeLog();
-        plugin.getUserDataManager().removeNodeToPlayer(player, nodeLog);
         player.closeInventory();
+        plugin.getUserDataManager().validateNodeData(nodeLog, isValid -> {
+            if(isValid){
+                plugin.getUserDataManager().removeNodeToPlayer(player, nodeLog);
+            }else{
+                player.sendMessage(GrantRank.PREFIX + MessageUtils.getColoredMessage(plugin.getMessagesManager().getNodeAlreadyRevoked()));
+            }
+        });
     }
 
     private void manageRevokeGrant(InventoryPlayer inventoryPlayer, Player player, CustomItem customItem, ClickType clickType){

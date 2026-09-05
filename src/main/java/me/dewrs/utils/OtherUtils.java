@@ -49,6 +49,13 @@ public class OtherUtils {
         return NodeType.PERMISSION;
     }
 
+    public static String getGroupNameByNode(String node) {
+        if (node.startsWith("group.")) {
+            return node.substring("group.".length());
+        }
+        return node;
+    }
+
     public static boolean isValidPageFormat(String input) {
         return input.matches("^page_\\d+$");
     }

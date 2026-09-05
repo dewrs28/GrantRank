@@ -1,0 +1,89 @@
+webhook:
+  #Specifies whether you want to enable the Discord webhook integration to send grant logs as embed messages.
+  #If you want this functionality disabled, you can ignore the rest of this file.
+  enabled: false
+  #Enter the URL of the webhook you want to use here.
+  url: ""
+  #Enter the footer that will appear in all embeds sent by the webhook.
+  footer: "MyServer Network"
+  #Here you can modify the name of each field that will be included in the embeds.
+  field_names:
+    id: "ID"
+    user: "User"
+    staff: "Staff"
+    rank: "Rank"
+    permission: "Permission"
+    time: "Time"
+    contexts: "Contexts"
+    reason: "Reason"
+    date: "Local Creation Date"
+
+  #Here you can configure different embed options depending on the type of log being sent.
+  embeds:
+    rank_give:
+      #Specifies whether you want this type of log to be sent through the webhook.
+      enabled: true
+      #Specifies the title that the embed will have.
+      title: "New Rank Granted | Log"
+      #Specifies the hexadecimal color of the vertical line on the left side of the embed.
+      #Website to choose a color in "Hex" format: https://htmlcolorcodes.com/color-picker/
+      color: "#0fff13"
+      #Specifies the image URL that will appear in the top-right corner of the embed.
+      #If you do not want this image to appear, leave the field empty as follows:
+      #thumbnail: ""
+      thumbnail: "https://i.imgur.com/vUfKcJg.png"
+      #Here you can specify which fields will appear in embeds of this type of log.
+      fields:
+        id: true
+        user: true
+        staff: true
+        rank: true
+        time: true
+        contexts: true
+        reason: true
+        date: true #This field will be set according to the local date of the host where your server is hosted.
+
+    rank_revoke:
+      enabled: true
+      title: "Rank Revoked | Log"
+      color: "#ff0f0f"
+      thumbnail: "https://i.imgur.com/vUfKcJg.png"
+      fields:
+        id: true
+        user: true
+        staff: true
+        rank: true
+        time: false
+        contexts: true
+        reason: false
+        date: true #This field represents the date on which the rank/permission was granted; it does not represent the date on which it was revoked.
+
+    permission_give:
+      enabled: true
+      title: "New Permission Granted | Log"
+      color: "#dfff0f"
+      thumbnail: "https://i.imgur.com/vUfKcJg.png"
+      fields:
+        id: true
+        user: true
+        staff: true
+        permission: true
+        time: true
+        contexts: true
+        reason: true
+        date: true
+
+    permission_revoke:
+      enabled: true
+      title: "Permission Revoked | Log"
+      color: "#ff0f0f"
+      thumbnail: "https://i.imgur.com/vUfKcJg.png"
+      fields:
+        id: true
+        user: true
+        staff: true
+        permission: true
+        time: false
+        contexts: true
+        reason: false
+        date: true

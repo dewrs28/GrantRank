@@ -1,6 +1,7 @@
 package me.dewrs.managers;
 
 import me.dewrs.GrantRank;
+import me.dewrs.config.DiscordConfigManager;
 import me.dewrs.enums.NodeType;
 import me.dewrs.enums.ParentRankType;
 import me.dewrs.enums.SoundType;
@@ -15,6 +16,8 @@ import me.dewrs.utils.TimeUtils;
 import net.luckperms.api.context.Context;
 import net.luckperms.api.context.ImmutableContextSet;
 import net.luckperms.api.context.MutableContextSet;
+import net.luckperms.api.model.data.DataMutateResult;
+import net.luckperms.api.model.data.TemporaryNodeMergeStrategy;
 import net.luckperms.api.model.group.Group;
 import net.luckperms.api.model.user.User;
 import net.luckperms.api.node.Node;
@@ -75,7 +78,7 @@ public class UserDataManager {
         });
     }
 
-    public void setNodeData(NodeLog nodeLog, Consumer<Boolean> callback) {
+    public void validateNodeData(NodeLog nodeLog, Consumer<Boolean> callback) {
         if (nodeLog.isRevoked()) {
             Bukkit.getScheduler().runTask(plugin, () -> callback.accept(false));
             return;
@@ -132,14 +135,24 @@ public class UserDataManager {
         String node = nodeLog.getNode();
         NodeType nodeType = OtherUtils.getNodeType(node);
         UUID uuid = nodeLog.getUuid_user();
+        DiscordManager discordManager = plugin.getDiscordManager();
+        DiscordConfigManager discordConfigManager = plugin.getDiscordConfigManager();
         plugin.getLuckPermsApi().getUserManager().modifyUser(uuid, user -> {
             Node nodeData = nodeLog.getNodeData();
             if (nodeData == null) {
                 return;
             }
             user.data().remove(nodeData);
-            plugin.getStorageManager().updateRevokeNodeLog(nodeLog.getId(), true, () ->
-                    manageChatRevokeMessages(player, nodeLog, nodeType));
+            plugin.getStorageManager().updateRevokeNodeLog(nodeLog.getId(), true, () -> {
+                manageChatRevokeMessages(player, nodeLog, nodeType);
+                if(OtherUtils.getNodeType(nodeLog.getNode()) == NodeType.RANK){
+                    if(discordConfigManager.isWebhookEnabled() && discordConfigManager.isRankRevokeEnabled())
+                        discordManager.sendEmbedLog(nodeLog, 2);
+                }else{
+                    if(discordConfigManager.isWebhookEnabled() && discordConfigManager.isPermRevokeEnabled())
+                        discordManager.sendEmbedLog(nodeLog, 2);
+                }
+            });
         });
     }
 
@@ -150,7 +163,7 @@ public class UserDataManager {
         return n.getKey().equals(node) && n.getValue() && n.getContexts().equals(immutableContextSet) && n.hasExpiry() == isTemp;
     }
 
-    public void setNodeToPlayer(UUID uuid, String permission, long expiry, MutableContextSet contexts, Consumer<Node> callback){
+    public void setNodeToPlayer(UUID uuid, String permission, long expiry, MutableContextSet contexts, Consumer<Node> callback, Runnable invalidCallback){
         Node node;
         if (expiry == -1) {
             node = PermissionNode.builder(permission)
@@ -163,12 +176,16 @@ public class UserDataManager {
                     .build();
         }
         plugin.getLuckPermsApi().getUserManager().modifyUser(uuid, user -> {
-            user.data().add(node);
+            DataMutateResult.WithMergedNode result = user.data().add(node, TemporaryNodeMergeStrategy.REPLACE_EXISTING_IF_DURATION_LONGER);
+            if(!result.getResult().wasSuccessful()){
+                invalidCallback.run();
+                return;
+            }
             callback.accept(node);
         });
     }
 
-    public void setRankToPlayer(UUID uuid, Group group, long expiry, MutableContextSet contexts, Consumer<Node> callback){
+    public void setRankToPlayer(UUID uuid, Group group, long expiry, MutableContextSet contexts, Consumer<Node> callback, Runnable invalidCallback){
         Node node;
         if (expiry == -1) {
             node = InheritanceNode.builder(group)
@@ -182,7 +199,11 @@ public class UserDataManager {
         }
         plugin.getLuckPermsApi().getUserManager().modifyUser(uuid, user -> {
             if(plugin.getConfigManager().getParentRankType() == ParentRankType.SET) user.data().clear(net.luckperms.api.node.NodeType.INHERITANCE::matches);
-            user.data().add(node);
+            DataMutateResult.WithMergedNode result = user.data().add(node, TemporaryNodeMergeStrategy.REPLACE_EXISTING_IF_DURATION_LONGER);
+            if(!result.getResult().wasSuccessful()){
+                invalidCallback.run();
+                return;
+            }
             callback.accept(node);
         });
     }
@@ -207,22 +228,38 @@ public class UserDataManager {
             contextSet.add(split[0], split[1]);
         }
         UUID uuid = inventoryPlayer.getTargetUuid();
+        DiscordManager discordManager = plugin.getDiscordManager();
+        DiscordConfigManager discordConfigManager = plugin.getDiscordConfigManager();
         if (nodeType == NodeType.RANK) {
-            setRankToPlayer(uuid, modifyData.getRank(), expiry, contextSet, node -> {
-                long creation_time = System.currentTimeMillis();
-                NodeLog nodeLog = new NodeLog(uuid, nameUser, nameOperator, node.getKey(), expiry, reason, contextSet, creation_time, false);
-                plugin.getStorageManager().createNodeLog(nodeLog, () -> {
-                    manageChatSuccessMessages(player, nodeLog, nodeType);
-                });
-            });
-        }else{
-            setNodeToPlayer(uuid, modifyData.getPermission(), expiry, contextSet, node -> {
-                long creation_time = System.currentTimeMillis();
-                NodeLog nodeLog = new NodeLog(uuid, nameUser, nameOperator, node.getKey(), expiry, reason, contextSet, creation_time, false);
-                plugin.getStorageManager().createNodeLog(nodeLog, () -> {
-                    manageChatSuccessMessages(player, nodeLog, nodeType);
-                });
-            });
+            setRankToPlayer(uuid, modifyData.getRank(), expiry, contextSet,
+                    node -> {
+                        long creation_time = System.currentTimeMillis();
+                        NodeLog nodeLog = new NodeLog(uuid, nameUser, nameOperator, node.getKey(), expiry, reason, contextSet, creation_time, false);
+                        plugin.getStorageManager().createNodeLog(nodeLog, id -> {
+                            nodeLog.setId(id);
+                            manageChatSuccessMessages(player, nodeLog, nodeType);
+                            if (discordConfigManager.isWebhookEnabled() && discordConfigManager.isRankGiveEnabled())
+                                discordManager.sendEmbedLog(nodeLog, 1);
+                        });
+                    },
+                    () -> {
+                        player.sendMessage(GrantRank.PREFIX + MessageUtils.getColoredMessage(plugin.getMessagesManager().getNodeAlreadyExists()));
+                    });
+        } else {
+            setNodeToPlayer(uuid, modifyData.getPermission(), expiry, contextSet,
+                    node -> {
+                        long creation_time = System.currentTimeMillis();
+                        NodeLog nodeLog = new NodeLog(uuid, nameUser, nameOperator, node.getKey(), expiry, reason, contextSet, creation_time, false);
+                        plugin.getStorageManager().createNodeLog(nodeLog, id -> {
+                            nodeLog.setId(id);
+                            manageChatSuccessMessages(player, nodeLog, nodeType);
+                            if (discordConfigManager.isWebhookEnabled() && discordConfigManager.isPermGiveEnabled())
+                                discordManager.sendEmbedLog(nodeLog, 1);
+                        });
+                    },
+                    () -> {
+                        player.sendMessage(GrantRank.PREFIX + MessageUtils.getColoredMessage(plugin.getMessagesManager().getNodeAlreadyExists()));
+                    });
         }
     }
 

@@ -39,6 +39,8 @@ public class GrantRank extends JavaPlugin {
     private RanksConfigManager ranksConfigManager;
     private ConnectionFactory connectionFactory;
     private UpdateCheckerManager updateCheckerManager;
+    private DiscordConfigManager discordConfigManager;
+    private DiscordManager discordManager;
 
     @Override
     public void onEnable() {
@@ -50,10 +52,12 @@ public class GrantRank extends JavaPlugin {
         inventoryManager = new InventoryManager(this);
         inventoryConfigManager = new InventoryConfigManager(this, "inventories");
         ranksConfigManager = new RanksConfigManager(this);
+        discordConfigManager = new DiscordConfigManager(this);
         userDataManager = new UserDataManager(this);
         hookManager = new HookManager(this);
         actionInventoryManager = new ActionInventoryManager(this);
         storageManager = new StorageManager(this);
+        discordManager = new DiscordManager(this);
         regCommands();
         regEvents();
         updateCheckerManager = new UpdateCheckerManager(version);
@@ -86,6 +90,7 @@ public class GrantRank extends JavaPlugin {
         messagesManager.reload();
         ranksConfigManager.reload();
         inventoryConfigManager.reloadInventories();
+        discordConfigManager.reload();
     }
 
     public ConfigManager getConfigManager() {
@@ -150,5 +155,13 @@ public class GrantRank extends JavaPlugin {
 
     public static String getBukkitVersion() {
         return bukkitVersion;
+    }
+
+    public DiscordConfigManager getDiscordConfigManager() {
+        return discordConfigManager;
+    }
+
+    public DiscordManager getDiscordManager() {
+        return discordManager;
     }
 }

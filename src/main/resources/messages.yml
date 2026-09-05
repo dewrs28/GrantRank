@@ -12,6 +12,8 @@ messages:
   chat_context_input: '&eType the context you want to add &8| &7(Type ''#'' to exit chat mode)'
   chat_permission_input: '&eType the permission you want to add &8| &7(Type ''#'' to exit chat mode)'
   chat_reason_input: '&eType the reason for granting the node:'
+  node_already_exists: "&cThe node you are trying to grant already exists with an equal or longer expiration time. You can only perform this grant if the time is longer than the REMAINING TIME of the existing node. If you want to reduce the expiration time, you will need to revoke the existing one and grant it again."
+  node_already_revoked: "&cThis node has already been revoked."
   grant_perm_success: '&aYou have successfully granted the rank &e%rank% &ato &e%player%&a! &7Contexts: %contexts%'
   permission_perm_success: '&aYou have successfully granted the permission &e%permission% &ato &e%player%&a! &7Contexts: %contexts%'
   grant_temp_success: '&aYou have successfully granted the rank &e%rank% &afor &e%time% &ato &e%player%&a! &7Contexts: %contexts%'

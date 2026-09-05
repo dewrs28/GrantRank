@@ -38,7 +38,8 @@ public enum ServerVersion {
     v1_21_R5,
     v1_21_R6,
     v1_21_R7,
-    v26_1;
+    v26_1,
+    v26_2;
 
     private static boolean isNewerThanOrEqualTo(ServerVersion version1, ServerVersion version2) {
         return version1.ordinal() >= version2.ordinal();
@@ -87,11 +88,13 @@ public enum ServerVersion {
             case "26.1.1":
             case "26.1.2":
                 return ServerVersion.v26_1;
+            case "26.2":
+                return ServerVersion.v26_2;
             default:
                 try {
                     return ServerVersion.valueOf(packageName.replace("org.bukkit.craftbukkit.", ""));
                 } catch (Exception e) {
-                    return ServerVersion.v26_1;
+                    return ServerVersion.v26_2;
                 }
         }
     }

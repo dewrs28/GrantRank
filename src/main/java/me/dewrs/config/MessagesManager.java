@@ -18,6 +18,8 @@ public class MessagesManager {
     private String chatReason;
     private String chatPermission;
     private String noPermission;
+    private String nodeAlreadyExists;
+    private String nodeAlreadyRevoked;
     private String grantSuccessPerm;
     private String grantSuccessTemp;
     private String invalidTime;
@@ -66,6 +68,8 @@ public class MessagesManager {
         chatReason = config.getString("messages.chat_reason_input");
         noPermission = config.getString("messages.no_permission");
         chatPermission = config.getString("messages.chat_permission_input");
+        nodeAlreadyExists = config.getString("messages.node_already_exists");
+        nodeAlreadyRevoked = config.getString("messages.node_already_revoked");
         grantSuccessPerm = config.getString("messages.grant_perm_success");
         grantSuccessTemp = config.getString("messages.grant_temp_success");
         permissionSuccessPerm = config.getString("messages.permission_perm_success");
@@ -216,5 +220,13 @@ public class MessagesManager {
 
     public String getWaitingGui() {
         return waitingGui;
+    }
+
+    public String getNodeAlreadyExists() {
+        return nodeAlreadyExists;
+    }
+
+    public String getNodeAlreadyRevoked() {
+        return nodeAlreadyRevoked;
     }
 }

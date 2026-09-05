@@ -71,11 +71,11 @@ public class ItemUtils {
             for(String s : lore){
                 if(s.contains(variable)){
                     if(values == null || values.isEmpty()){
-                        replace.add(MessageUtils.getColoredMessage("&7Empty"));
+                        replace.add(MessageUtils.getColoredMessage("&7None"));
                         continue;
                     }
                     for(String v : values) {
-                        replace.add(MessageUtils.getColoredMessage("&e"+v));
+                        replace.add(MessageUtils.getColoredMessage("&6"+v));
                     }
                 }else{
                     replace.add(s);

@@ -54,9 +54,7 @@ public class StorageManager {
             return;
         }
         createTables();
-        migrateDatabase(() -> {
-            LogSender.sendLogMessage(LogMessage.STORAGE_CORRECT.format(storageType.toString()));
-        });
+        LogSender.sendLogMessage(LogMessage.STORAGE_CORRECT.format(storageType.toString()));
     }
 
     public Connection getConnection() throws SQLException {
@@ -92,7 +90,7 @@ public class StorageManager {
         }
     }
 
-    public void createNodeLog(NodeLog nodeLog, Runnable callBack){
+    public void createNodeLog(NodeLog nodeLog, Consumer<Integer> callBack){
         new BukkitRunnable(){
             @Override
             public void run() {
@@ -111,9 +109,11 @@ public class StorageManager {
                     statement.executeUpdate();
 
                     ResultSet generatedKeys = statement.getGeneratedKeys();
-                    int nodeId = -1;
+                    int nodeId;
                     if (generatedKeys.next()) {
                         nodeId = generatedKeys.getInt(1);
+                    } else {
+                        nodeId = -1;
                     }
                     for (Context context : nodeLog.getContextSet().toSet()) {
                         try {
@@ -127,7 +127,7 @@ public class StorageManager {
                             e.printStackTrace();
                         }
                     }
-                    Bukkit.getScheduler().runTask(plugin, callBack);
+                    Bukkit.getScheduler().runTask(plugin, () -> callBack.accept(nodeId));
                 }catch (SQLException e){
                     e.printStackTrace();
                 }
@@ -201,21 +201,12 @@ public class StorageManager {
         }.runTaskAsynchronously(plugin);
     }
 
-    //QueryType:
-    //1 : Normal - With "revoked"
-    //2 : v1.1 - Without "revoked"
-    public void getNodeLogs(int queryType, Consumer<TreeMap<Integer, NodeLog>> callBack){
-        String query = "";
-        if(queryType == 1) query = "SELECT n.id, n.uuid_user, n.name_user, n.name_operator, n.node, n.expiry, n.reason, n.creation_time, n.revoked, c.context_key, c.context_value "+
+    public void getNodeLogs(Consumer<TreeMap<Integer, NodeLog>> callBack){
+        String finalQuery = "SELECT n.id, n.uuid_user, n.name_user, n.name_operator, n.node, n.expiry, n.reason, n.creation_time, n.revoked, c.context_key, c.context_value "+
                 "FROM nodes_logs n " +
                 "LEFT JOIN contexts_logs c " +
                 "ON n.id = c.node_id";
-        if(queryType == 2) query = "SELECT n.id, n.uuid_user, n.name_user, n.name_operator, n.node, n.expiry, n.reason, n.creation_time, c.context_key, c.context_value "+
-                    "FROM nodes_logs n " +
-                    "LEFT JOIN contexts_logs c " +
-                    "ON n.id = c.node_id";
         TreeMap<Integer, NodeLog> nodesLogs = new TreeMap<>();
-        String finalQuery = query;
         new BukkitRunnable(){
             @Override
             public void run() {
@@ -244,8 +235,7 @@ public class StorageManager {
                         if (contextKey != null && contextValue != null) {
                             contextSet.add(contextKey, contextValue);
                         }
-                        boolean isRevoked = false;
-                        if(queryType == 1) isRevoked = resultSet.getBoolean("revoked");
+                        boolean isRevoked = resultSet.getBoolean("revoked");
                         NodeLog nodeLog = new NodeLog(uuid_user, name_user, name_operator, node, expiry, reason, contextSet, creation_time, isRevoked);
                         nodeLog.setId(id);
                         nodesLogs.put(id, nodeLog);
@@ -297,31 +287,6 @@ public class StorageManager {
         }
     }
 
-    public void migrateDatabase(Runnable callBack){
-        try (Connection con = getConnection()) {
-            PreparedStatement statement = con.prepareStatement("SELECT * FROM nodes_logs LIMIT 1");
-            ResultSet rs = statement.executeQuery();
-
-            ResultSetMetaData metaData = rs.getMetaData();
-            int columnCount = metaData.getColumnCount();
-
-            for (int i = 1; i <= columnCount; i++) {
-                if (metaData.getColumnName(i).equalsIgnoreCase("revoked")) {
-                    callBack.run();
-                    return;
-                }
-            }
-
-            getNodeLogs(2, nodeLogs -> {
-               deleteNodeLogsTables();
-               createTables();
-               processSequentially(nodeLogs, 0, callBack);
-            });
-        } catch (SQLException e) {
-            e.printStackTrace();
-        }
-    }
-
     private void processSequentially(TreeMap<Integer, NodeLog> entries, int index, Runnable callBack) {
         List<Map.Entry<Integer, NodeLog>> list = new ArrayList<>(entries.entrySet());
         if (index >= list.size()) {
@@ -330,7 +295,7 @@ public class StorageManager {
         }
 
         NodeLog nodeLog = list.get(index).getValue();
-        createNodeLog(nodeLog, () -> processSequentially(entries, index + 1, callBack));
+        createNodeLog(nodeLog, id -> processSequentially(entries, index + 1, callBack));
     }
 
     public StorageType getStorageType() {

@@ -6,7 +6,8 @@ public enum LogMessage {
     INVENTORIES_LOADED("&aThe following inventories have been successfully loaded &e%s&a."),
     STORAGE_CORRECT("&aThe storage was successfully started on type: &e%s&a."),
     STORAGE_CONNECTION_ERROR("&cThe connection to &e%s &ccould not be made. Please check the connection information and storage type correctly."),
-    INVALID_SOUND("&cThe sound &e%s &cis not valid. Please choose the correct one.");
+    INVALID_SOUND("&cThe sound &e%s &cis not valid. Please choose the correct one."),
+    INVALID_WEBHOOK("&cThe webhook connection failed. The webhook URL entered in the &ediscord.yml &cfile is invalid.");
 
     private final String message;
 
